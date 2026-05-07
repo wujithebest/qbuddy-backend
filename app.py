@@ -905,7 +905,8 @@ def qbuddy_scan(role):
                 summary = "看起来一切都很顺利呢！没有需要特别提醒的事项~"
             
             yield f"data: {json.dumps({'type': 'dialogue', 'text': summary})}\n\n"
-            yield f"data: {json.dumps({
+            
+            done_data = {
                 'type': 'done', 
                 'total': len(all_cards), 
                 'performance': {
@@ -913,7 +914,8 @@ def qbuddy_scan(role):
                     'phase2_integration_time': round(phase2_time, 2),
                     'total_time': round(total_time, 2)
                 }
-            })}\n\n"
+            }
+            yield f"data: {json.dumps(done_data)}\n\n"
             
         except Exception as e:
             import traceback
