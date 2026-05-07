@@ -1,0 +1,6 @@
+{
+  "envId": "qbuddy-d0gbfe8ro091f22d9",
+  "cloudrun": {
+    "name": "qbuddy-backend"
+  }
+}

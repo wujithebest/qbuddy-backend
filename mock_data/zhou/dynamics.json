@@ -1,0 +1,100 @@
+{
+  "dynamics": [
+    {
+      "id": "dyn_001",
+      "author": "吉他学长小寒",
+      "avatar": "🎸",
+      "time": "30分钟前",
+      "content": "今天练了《晴天》前奏，终于能完整弹下来了，感动！🎸",
+      "images": [
+        "🎸"
+      ],
+      "likes": 18,
+      "comments": 5,
+      "related_interests": [
+        "吉他",
+        "音乐"
+      ]
+    },
+    {
+      "id": "dyn_002",
+      "author": "阿琴学姐",
+      "avatar": "🎵",
+      "time": "2小时前",
+      "content": "组了个乐队缺吉他手，有兴趣的学弟学妹可以来试试呀~",
+      "images": [
+        "🎹",
+        "🥁"
+      ],
+      "likes": 25,
+      "comments": 12,
+      "related_interests": [
+        "独立音乐",
+        "民谣"
+      ]
+    },
+    {
+      "id": "dyn_003",
+      "author": "婷婷",
+      "avatar": "📷",
+      "time": "昨天",
+      "content": "漫展打卡！今天见到了好多cosplay的小姐姐，拍照拍到手软📸",
+      "images": [
+        "🎭",
+        "✨"
+      ],
+      "likes": 48,
+      "comments": 16,
+      "related_interests": [
+        "漫展",
+        "摄影"
+      ]
+    },
+    {
+      "id": "dyn_004",
+      "author": "室友老王",
+      "avatar": "🎮",
+      "time": "2天前",
+      "content": "永劫无间终于上铂金了！这游戏真的太上头了🎮",
+      "images": [],
+      "likes": 14,
+      "comments": 6,
+      "related_interests": [
+        "游戏",
+        "永劫无间"
+      ]
+    },
+    {
+      "id": "dyn_005",
+      "author": "高中好友浩子",
+      "avatar": "🏀",
+      "time": "3天前",
+      "content": "高中篮球赛拿了年级第三！兄弟们太给力了🏀",
+      "images": [
+        "🏆"
+      ],
+      "likes": 38,
+      "comments": 15,
+      "related_interests": [
+        "篮球",
+        "运动"
+      ]
+    },
+    {
+      "id": "dyn_006",
+      "author": "学姐小陈",
+      "avatar": "👩‍🎓",
+      "time": "1周前",
+      "content": "大创项目中期答辩顺利通过！感谢团队每一个人的努力~",
+      "images": [
+        "🎓"
+      ],
+      "likes": 42,
+      "comments": 10,
+      "related_interests": [
+        "学术",
+        "创业"
+      ]
+    }
+  ]
+}

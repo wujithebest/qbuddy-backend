@@ -1,0 +1,77 @@
+{
+  "id": "lin",
+  "name": "小林",
+  "identity_type": "young_worker",
+  "persona": {
+    "age": 24,
+    "grade": "入职1年·互联网产品经理",
+    "personality": "需求评审常驻选手、被开发催需求、PRD写不完、偶尔和开发battle、群消息太多经常漏看@",
+    "interests": [
+      "咖啡探店",
+      "播客",
+      "用户体验",
+      "追剧",
+      "城市骑行"
+    ],
+    "habits": [
+      "工作群消息秒回",
+      "PRD改了无数版",
+      "@经常漏看",
+      "收藏夹全是竞品分析"
+    ],
+    "tone": "语气活泼但不失专业，偶尔吐槽产品和开发，跟朋友聊天很放松"
+  },
+  "stats": {
+    "total_contacts": 12,
+    "active_groups": 8,
+    "daily_msg_avg": 120,
+    "工作年限": 1
+  },
+  "current_context": {
+    "date": "2026-05-04",
+    "time": "19:30",
+    "location": "出租屋",
+    "mood": "疲惫但充实",
+    "recent_events": [
+      "PRD第8版终于过了",
+      "用户调研跑了3个写字楼"
+    ]
+  },
+  "graph_summary": {
+    "total_nodes": 15,
+    "high_temp_nodes": 4,
+    "cold_nodes": 2,
+    "avg_temperature": 0.58
+  },
+  "cold_start_params": {
+    "threshold_multiplier": 0.8,
+    "buddy_cooling_threshold": 2.0,
+    "dormant_threshold": 3.5,
+    "dormant_days_threshold": 14,
+    "card_tone": "活泼但不失专业",
+    "card_length": "medium",
+    "emoji_usage": "moderate",
+    "interest_weights": {
+      "咖啡探店": 0.85,
+      "播客": 0.75,
+      "用户体验": 0.8,
+      "追剧": 0.7,
+      "城市骑行": 0.7
+    },
+    "event_weights": {
+      "DDL": 1.0,
+      "VOTE": 1.2,
+      "REQUEST": 1.5,
+      "BIRTHDAY": 1.0
+    },
+    "push_hours": [
+      9,
+      10,
+      12,
+      13,
+      18,
+      19,
+      20
+    ]
+  }
+}

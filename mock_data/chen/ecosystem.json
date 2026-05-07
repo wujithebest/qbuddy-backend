@@ -1,0 +1,37 @@
+{
+  "qq_music": {
+    "recently_listened": [
+      "晴天 - 周杰伦",
+      "起风了 - 买辣椒也用券",
+      "稻香 - 周杰伦",
+      "那些年 - 胡夏"
+    ],
+    "playlists": [
+      "深夜敲代码BGM",
+      "学习专注白噪音",
+      "放松轻音乐"
+    ]
+  },
+  "qq_reading": {
+    "recently_reading": [
+      "算法导论",
+      "深入理解计算机系统",
+      "PythonCookbook"
+    ],
+    "bookmarks": [
+      "算法导论 第7章 排序",
+      "CSAPP 第3章 程序优化"
+    ]
+  },
+  "tencent_video": {
+    "recently_watching": [
+      "庆余年2",
+      "三体",
+      "狂飙"
+    ],
+    "watchlist": [
+      "繁花",
+      "琅琊榜"
+    ]
+  }
+}

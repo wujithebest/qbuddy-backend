@@ -1,0 +1,232 @@
+{
+  "contacts": [
+    {
+      "id": "xiaoli",
+      "name": "小李",
+      "relationship_type": "搭子",
+      "tags": [
+        "游戏-王者荣耀",
+        "考研"
+      ],
+      "baseline_interval": 72.0,
+      "last_interaction_time": "2026-04-15T20:00:00",
+      "birthday": "2026-08-12",
+      "chat_history_summary": "考研期间几乎断联，之前经常一起开黑。考研结束后需要重新建立联系。",
+      "interest_tags": [
+        "考研",
+        "王者荣耀",
+        "健身"
+      ],
+      "temperature": 0.25,
+      "recent_events": [
+        "2026-04-20 考研出分",
+        "2026-04-25 发朋友圈健身照"
+      ]
+    },
+    {
+      "id": "xiaowang",
+      "name": "小王",
+      "relationship_type": "搭子",
+      "tags": [
+        "游戏-王者荣耀",
+        "日常开黑"
+      ],
+      "baseline_interval": 48.0,
+      "last_interaction_time": "2026-04-22T22:30:00",
+      "birthday": "2026-02-18",
+      "chat_history_summary": "固定游戏搭子，每周末组队开黑。但最近12天没联系了，关系在降温。",
+      "interest_tags": [
+        "王者荣耀",
+        "电竞",
+        "篮球"
+      ],
+      "temperature": 0.3,
+      "recent_events": [
+        "2026-04-28 发朋友圈：终于上王者了"
+      ]
+    },
+    {
+      "id": "xiaozhang",
+      "name": "小张",
+      "relationship_type": "同学",
+      "tags": [
+        "课程-数据库",
+        "项目开发"
+      ],
+      "baseline_interval": 24.0,
+      "last_interaction_time": "2026-05-04T10:00:00",
+      "birthday": "2026-07-03",
+      "chat_history_summary": "数据库课程同学，项目答辩搭档，经常@我讨论进度。互动频繁。",
+      "interest_tags": [
+        "编程",
+        "数据库",
+        "后端开发"
+      ],
+      "temperature": 0.85
+    },
+    {
+      "id": "xiaoliu",
+      "name": "小刘",
+      "relationship_type": "同学",
+      "tags": [
+        "课程-操作系统",
+        "算法"
+      ],
+      "baseline_interval": 48.0,
+      "last_interaction_time": "2026-05-02T15:00:00",
+      "birthday": "2026-11-20",
+      "chat_history_summary": "操作系统课程同学，偶尔@我讨论作业问题。",
+      "interest_tags": [
+        "操作系统",
+        "算法",
+        "C语言"
+      ],
+      "temperature": 0.65
+    },
+    {
+      "id": "dad",
+      "name": "爸爸",
+      "relationship_type": "家人",
+      "tags": [
+        "家人"
+      ],
+      "baseline_interval": 168.0,
+      "last_interaction_time": "2026-05-03T20:00:00",
+      "birthday": "1975-03-15",
+      "chat_history_summary": "每周视频一次，聊家常。关系稳定。",
+      "interest_tags": [
+        "钓鱼",
+        "下棋"
+      ],
+      "temperature": 0.78
+    },
+    {
+      "id": "mom",
+      "name": "妈妈",
+      "relationship_type": "家人",
+      "tags": [
+        "家人"
+      ],
+      "baseline_interval": 120.0,
+      "last_interaction_time": "2026-05-03T20:00:00",
+      "birthday": "1978-09-22",
+      "chat_history_summary": "关心生活，偶尔唠叨。上周刚视频过。",
+      "interest_tags": [
+        "烹饪",
+        "养生"
+      ],
+      "temperature": 0.82
+    },
+    {
+      "id": "gufang",
+      "name": "顾芳",
+      "relationship_type": "同学",
+      "tags": [
+        "课程-算法",
+        "保研"
+      ],
+      "baseline_interval": 36.0,
+      "last_interaction_time": "2026-05-01T14:00:00",
+      "birthday": "2026-04-10",
+      "chat_history_summary": "算法课学霸，之前一起复习保研材料。保研夏令营通过了，最近在准备面试。",
+      "interest_tags": [
+        "算法",
+        "保研",
+        "学术"
+      ],
+      "temperature": 0.7
+    },
+    {
+      "id": "laochen",
+      "name": "老陈",
+      "relationship_type": "好友",
+      "tags": [
+        "高中同学",
+        "篮球"
+      ],
+      "baseline_interval": 168.0,
+      "last_interaction_time": "2026-04-28T19:00:00",
+      "birthday": "2026-06-01",
+      "chat_history_summary": "高中好友，现在同城不同校，偶尔约球。",
+      "interest_tags": [
+        "篮球",
+        "高中同学"
+      ],
+      "temperature": 0.55
+    }
+  ],
+  "edges": [
+    {
+      "source": "user",
+      "target": "xiaoli",
+      "weight": 0.8,
+      "temperature": 0.25,
+      "edge_type": "搭子",
+      "cooling_ratio": 6.33,
+      "days_since_interaction": 19
+    },
+    {
+      "source": "user",
+      "target": "xiaowang",
+      "weight": 0.75,
+      "temperature": 0.3,
+      "edge_type": "搭子",
+      "cooling_ratio": 2.5,
+      "days_since_interaction": 12
+    },
+    {
+      "source": "user",
+      "target": "xiaozhang",
+      "weight": 0.85,
+      "temperature": 0.85,
+      "edge_type": "同学",
+      "cooling_ratio": 0.73,
+      "days_since_interaction": 0
+    },
+    {
+      "source": "user",
+      "target": "xiaoliu",
+      "weight": 0.7,
+      "temperature": 0.65,
+      "edge_type": "同学",
+      "cooling_ratio": 1.08,
+      "days_since_interaction": 2
+    },
+    {
+      "source": "user",
+      "target": "dad",
+      "weight": 0.95,
+      "temperature": 0.78,
+      "edge_type": "家人",
+      "cooling_ratio": 0.15,
+      "days_since_interaction": 1
+    },
+    {
+      "source": "user",
+      "target": "mom",
+      "weight": 0.95,
+      "temperature": 0.82,
+      "edge_type": "家人",
+      "cooling_ratio": 0.21,
+      "days_since_interaction": 1
+    },
+    {
+      "source": "user",
+      "target": "gufang",
+      "weight": 0.7,
+      "temperature": 0.7,
+      "edge_type": "同学",
+      "cooling_ratio": 2.0,
+      "days_since_interaction": 3
+    },
+    {
+      "source": "user",
+      "target": "laochen",
+      "weight": 0.75,
+      "temperature": 0.55,
+      "edge_type": "好友",
+      "cooling_ratio": 1.0,
+      "days_since_interaction": 6
+    }
+  ]
+}

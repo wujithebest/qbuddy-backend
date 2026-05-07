@@ -1,0 +1,75 @@
+{
+  "id": "chen",
+  "name": "小陈",
+  "identity_type": "college",
+  "persona": {
+    "age": 22,
+    "grade": "大三建筑学专业",
+    "personality": "专注学业、善于规划、社交相对被动、群消息容易漏看@",
+    "interests": [
+      "建筑设计",
+      "手绘",
+      "城市摄影",
+      "BIM建模",
+      "模型制作"
+    ],
+    "habits": [
+      "经常泡专业教室画图",
+      "熬夜做模型",
+      "群消息容易忽略",
+      "@消息经常漏看"
+    ],
+    "tone": "语气简洁直接，偶尔带点设计圈术语，不太擅长表达情感，回复通常比较简短"
+  },
+  "stats": {
+    "total_contacts": 8,
+    "active_groups": 5,
+    "daily_msg_avg": 45,
+    "study_hours_per_day": 8
+  },
+  "current_context": {
+    "date": "2026-05-04",
+    "time": "14:30",
+    "location": "专业教室",
+    "mood": "忙碌",
+    "recent_events": [
+      "毕设中期答辩",
+      "作品集整理",
+      "建筑手绘练习"
+    ]
+  },
+  "graph_summary": {
+    "total_nodes": 12,
+    "high_temp_nodes": 3,
+    "cold_nodes": 4,
+    "avg_temperature": 0.52
+  },
+  "cold_start_params": {
+    "threshold_multiplier": 1.2,
+    "buddy_cooling_threshold": 2.5,
+    "dormant_threshold": 4.0,
+    "dormant_days_threshold": 20,
+    "card_tone": "简洁直接",
+    "card_length": "short",
+    "emoji_usage": "minimal",
+    "interest_weights": {
+      "建筑设计": 0.95,
+      "手绘": 0.95,
+      "城市摄影": 0.9,
+      "BIM建模": 0.8,
+      "模型制作": 0.7
+    },
+    "event_weights": {
+      "DDL": 1.2,
+      "VOTE": 1.0,
+      "REQUEST": 1.0,
+      "BIRTHDAY": 1.0
+    },
+    "push_hours": [
+      19,
+      20,
+      21,
+      22
+    ]
+  }
+}

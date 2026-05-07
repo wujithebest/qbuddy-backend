@@ -1,0 +1,394 @@
+{
+  "groups": [
+    {
+      "id": "db_class",
+      "name": "建筑设计原理群",
+      "type": "课程群",
+      "member_count": 45,
+      "recent_messages": [
+        {
+          "id": "msg_001",
+          "sender": "助教小王",
+          "time": "2026-05-04T09:00:00",
+          "content": "【重要】数据库实验报告DDL提前到5月6日中午12点！不是5月8日了！大家注意！",
+          "type": "announcement",
+          "urgency": "high"
+        },
+        {
+          "id": "msg_002",
+          "sender": "小张",
+          "time": "2026-05-04T09:15:00",
+          "content": "啊？？提前了？？我还没开始写呢😭",
+          "type": "normal"
+        },
+        {
+          "id": "msg_003",
+          "sender": "小李",
+          "time": "2026-05-04T09:20:00",
+          "content": "救命 论文还没写完又要赶实验报告",
+          "type": "normal"
+        },
+        {
+          "id": "msg_004",
+          "sender": "小刘",
+          "time": "2026-05-04T09:30:00",
+          "content": "有没有人一起来图书馆写啊 我现在就过去",
+          "type": "normal"
+        },
+        {
+          "id": "msg_005",
+          "sender": "群主刘老师",
+          "time": "2026-05-04T10:00:00",
+          "content": "分组实验项目：@小陈 @小张 @小李 @小王 第四组，5月10日答辩",
+          "type": "at_reminder"
+        },
+        {
+          "id": "msg_006",
+          "sender": "小张",
+          "time": "2026-05-04T10:05:00",
+          "content": "@小陈 我们项目进展咋样了",
+          "type": "at_reply"
+        },
+        {
+          "id": "msg_007",
+          "sender": "助教小王",
+          "time": "2026-05-04T11:00:00",
+          "content": "【投票】下周实验课调课：同意调到周二的扣1，同意周四的扣2",
+          "type": "vote",
+          "options": [
+            "周二",
+            "周四"
+          ],
+          "deadline": "2026-05-05T18:00:00"
+        },
+        {
+          "id": "msg_008",
+          "sender": "小王",
+          "time": "2026-05-04T11:05:00",
+          "content": "2 周四下午我有空",
+          "type": "normal"
+        },
+        {
+          "id": "msg_009",
+          "sender": "小李",
+          "time": "2026-05-04T11:10:00",
+          "content": "周四吧 周二满课",
+          "type": "normal"
+        },
+        {
+          "id": "msg_010",
+          "sender": "路人甲",
+          "time": "2026-05-04T11:30:00",
+          "content": "有人知道实验报告格式要求吗 我找不到了",
+          "type": "question"
+        }
+      ]
+    },
+    {
+      "id": "os_class",
+      "name": "建筑力学课程群",
+      "type": "课程群",
+      "member_count": 38,
+      "recent_messages": [
+        {
+          "id": "msg_101",
+          "sender": "小刘",
+          "time": "2026-05-04T08:00:00",
+          "content": "今天的操作系统课有人录音吗 我迟到了",
+          "type": "normal"
+        },
+        {
+          "id": "msg_102",
+          "sender": "小陈",
+          "time": "2026-05-04T08:05:00",
+          "content": "录了 一会儿发群里",
+          "type": "normal"
+        },
+        {
+          "id": "msg_103",
+          "sender": "操作系统老师",
+          "time": "2026-05-04T08:30:00",
+          "content": "【通知】第三次作业题目已发邮箱，5月12日之前提交",
+          "type": "announcement",
+          "urgency": "medium"
+        },
+        {
+          "id": "msg_104",
+          "sender": "小王",
+          "time": "2026-05-04T08:35:00",
+          "content": "邮箱密码多少来着 我登不上去",
+          "type": "question"
+        },
+        {
+          "id": "msg_105",
+          "sender": "路人乙",
+          "time": "2026-05-04T09:00:00",
+          "content": "作业三是不是要做文件系统啊啊啊",
+          "type": "normal"
+        },
+        {
+          "id": "msg_106",
+          "sender": "小刘",
+          "time": "2026-05-04T09:15:00",
+          "content": "对！还要写报告 我先看看往年题",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "algo_class",
+      "name": "建筑结构设计群",
+      "type": "课程群",
+      "member_count": 52,
+      "recent_messages": [
+        {
+          "id": "msg_201",
+          "sender": "顾芳",
+          "time": "2026-05-03T20:00:00",
+          "content": "下周算法课的小测范围出了，是动态规划和贪心",
+          "type": "announcement",
+          "urgency": "medium"
+        },
+        {
+          "id": "msg_202",
+          "sender": "小陈",
+          "time": "2026-05-03T20:30:00",
+          "content": "收到谢谢",
+          "type": "normal"
+        },
+        {
+          "id": "msg_203",
+          "sender": "群友A",
+          "time": "2026-05-03T21:00:00",
+          "content": "有人一起刷力扣备战小测吗",
+          "type": "normal"
+        },
+        {
+          "id": "msg_204",
+          "sender": "小陈",
+          "time": "2026-05-03T21:05:00",
+          "content": "我可以 但最近有点忙",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "game_squad",
+      "name": "手绘打卡群",
+      "type": "兴趣群",
+      "member_count": 8,
+      "recent_messages": [
+        {
+          "id": "msg_301",
+          "sender": "小王",
+          "time": "2026-04-28T20:00:00",
+          "content": "兄弟们 我终于上王者了！！！",
+          "type": "normal"
+        },
+        {
+          "id": "msg_302",
+          "sender": "群友B",
+          "time": "2026-04-28T20:05:00",
+          "content": "恭喜恭喜！",
+          "type": "normal"
+        },
+        {
+          "id": "msg_303",
+          "sender": "小王",
+          "time": "2026-04-28T20:10:00",
+          "content": "有空一起上分啊 @小陈 @小李",
+          "type": "normal"
+        },
+        {
+          "id": "msg_304",
+          "sender": "群友C",
+          "time": "2026-04-29T10:00:00",
+          "content": "周末开黑dd",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "dorm_group",
+      "name": "室友群",
+      "type": "生活群",
+      "member_count": 4,
+      "recent_messages": [
+        {
+          "id": "msg_401",
+          "sender": "室友A",
+          "time": "2026-05-04T07:00:00",
+          "content": "谁借了我充电宝",
+          "type": "normal"
+        },
+        {
+          "id": "msg_402",
+          "sender": "小陈",
+          "time": "2026-05-04T07:05:00",
+          "content": "是我 我拿走了 回头还你",
+          "type": "normal"
+        },
+        {
+          "id": "msg_403",
+          "sender": "室友B",
+          "time": "2026-05-04T12:00:00",
+          "content": "午饭谁要带",
+          "type": "normal"
+        },
+        {
+          "id": "msg_404",
+          "sender": "小张",
+          "time": "2026-05-04T10:30:00",
+          "content": "帮我带个饭呗 我在图书馆占座了",
+          "type": "request",
+          "target_user": "小陈"
+        },
+        {
+          "id": "msg_405",
+          "sender": "小陈",
+          "time": "2026-05-04T10:35:00",
+          "content": "行 要啥",
+          "type": "accept"
+        },
+        {
+          "id": "msg_406",
+          "sender": "小张",
+          "time": "2026-05-04T10:36:00",
+          "content": "二楼炸鸡饭 加个蛋",
+          "type": "normal"
+        },
+        {
+          "id": "msg_407",
+          "sender": "小陈",
+          "time": "2026-05-04T10:37:00",
+          "content": "好",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "study_group",
+      "name": "模型制作交流群",
+      "type": "学习群",
+      "member_count": 12,
+      "recent_messages": [
+        {
+          "id": "msg_501",
+          "sender": "小李",
+          "time": "2026-05-04T09:00:00",
+          "content": "有人有数据库历年真题吗",
+          "type": "normal"
+        },
+        {
+          "id": "msg_502",
+          "sender": "小王",
+          "time": "2026-05-04T09:05:00",
+          "content": "@小陈 你有吗 上次你说有的",
+          "type": "request"
+        },
+        {
+          "id": "msg_503",
+          "sender": "小陈",
+          "time": "2026-05-04T09:10:00",
+          "content": "有 我回头发你",
+          "type": "accept"
+        },
+        {
+          "id": "msg_504",
+          "sender": "小王",
+          "time": "2026-05-04T09:15:00",
+          "content": "谢谢！",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "seat_request",
+      "name": "专业教室占座群",
+      "type": "生活群",
+      "member_count": 6,
+      "recent_messages": [
+        {
+          "id": "msg_601",
+          "sender": "小美",
+          "time": "2026-05-04T08:00:00",
+          "content": "明天图书馆帮我占个座呗",
+          "type": "request",
+          "target_user": "小陈"
+        },
+        {
+          "id": "msg_602",
+          "sender": "小陈",
+          "time": "2026-05-04T08:05:00",
+          "content": "没问题 几楼",
+          "type": "accept"
+        },
+        {
+          "id": "msg_603",
+          "sender": "小美",
+          "time": "2026-05-04T08:06:00",
+          "content": "三楼靠窗的",
+          "type": "normal"
+        },
+        {
+          "id": "msg_604",
+          "sender": "小陈",
+          "time": "2026-05-04T08:07:00",
+          "content": "好嘞",
+          "type": "normal"
+        },
+        {
+          "id": "msg_605",
+          "sender": "小美",
+          "time": "2026-05-04T08:10:00",
+          "content": "爱你～",
+          "type": "normal"
+        },
+        {
+          "id": "msg_606",
+          "sender": "路人甲",
+          "time": "2026-05-04T09:00:00",
+          "content": "四楼还有位置吗",
+          "type": "question"
+        }
+      ]
+    },
+    {
+      "id": "unreplied",
+      "name": "帮忙群",
+      "type": "生活群",
+      "member_count": 5,
+      "recent_messages": [
+        {
+          "id": "msg_701",
+          "sender": "阿杰",
+          "time": "2026-05-03T14:00:00",
+          "content": "小陈 明天帮我拿个快递呗",
+          "type": "request",
+          "target_user": "小陈"
+        },
+        {
+          "id": "msg_702",
+          "sender": "阿杰",
+          "time": "2026-05-03T14:30:00",
+          "content": "菜鸟驿站 编号3456",
+          "type": "normal"
+        },
+        {
+          "id": "msg_703",
+          "sender": "阿杰",
+          "time": "2026-05-03T20:00:00",
+          "content": "？？",
+          "type": "normal"
+        },
+        {
+          "id": "msg_704",
+          "sender": "阿杰",
+          "time": "2026-05-04T10:00:00",
+          "content": "你看到了吗小陈",
+          "type": "normal"
+        }
+      ]
+    }
+  ]
+}

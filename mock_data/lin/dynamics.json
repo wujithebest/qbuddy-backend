@@ -1,0 +1,88 @@
+{
+  "dynamics": [
+    {
+      "id": "dyn_001",
+      "author": "动漫搭子小刚",
+      "avatar": "☕",
+      "time": "2小时前",
+      "content": "新探的咖啡店豆子超赞！适合PM写PRD的时候去摸鱼☕",
+      "images": [],
+      "likes": 22,
+      "comments": 5,
+      "related_interests": [
+        "咖啡",
+        "探店"
+      ]
+    },
+    {
+      "id": "dyn_002",
+      "author": "羽毛球搭子小美",
+      "avatar": "🏢",
+      "time": "2天前",
+      "content": "新公司入职第一天！环境好棒，同事都好厉害，要努力加油💪",
+      "images": [],
+      "likes": 45,
+      "comments": 12,
+      "related_interests": [
+        "职场",
+        "跳槽"
+      ]
+    },
+    {
+      "id": "dyn_003",
+      "author": "闺蜜小雪",
+      "avatar": "📊",
+      "time": "昨天",
+      "content": "用户调研跑了3个写字楼，被拒绝了无数次，但拿到了一些有价值的数据💪",
+      "images": [],
+      "likes": 35,
+      "comments": 12,
+      "related_interests": [
+        "用户调研",
+        "产品经理"
+      ]
+    },
+    {
+      "id": "dyn_004",
+      "author": "老王",
+      "avatar": "💻",
+      "time": "昨天",
+      "content": "和PM又吵架了，但最后发现是我理解错了需求😅 PM的PRD写得还是清楚的",
+      "images": [],
+      "likes": 28,
+      "comments": 15,
+      "related_interests": [
+        "后端开发",
+        "协作"
+      ]
+    },
+    {
+      "id": "dyn_005",
+      "author": "小亮",
+      "avatar": "📺",
+      "time": "3天前",
+      "content": "周末追完了《漫长的季节》，悬疑剧真的绝！有没有人一起讨论",
+      "images": [],
+      "likes": 32,
+      "comments": 15,
+      "related_interests": [
+        "追剧",
+        "悬疑"
+      ]
+    },
+    {
+      "id": "dyn_006",
+      "author": "小范",
+      "avatar": "💼",
+      "time": "30分钟前",
+      "content": "PRD第8版终于过了！！改了快一个月了😭 终于可以睡个好觉",
+      "images": [],
+      "likes": 18,
+      "comments": 8,
+      "related_interests": [
+        "产品经理",
+        "工作"
+      ]
+    }
+  ]
+}

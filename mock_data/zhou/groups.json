@@ -1,0 +1,319 @@
+{
+  "groups": [
+    {
+      "id": "creator_hub",
+      "name": "创作者交流群",
+      "type": "创作群",
+      "member_count": 156,
+      "recent_messages": [
+        {
+          "id": "msg_001",
+          "sender": "群友A",
+          "time": "2026-05-04T14:00:00",
+          "content": "有人接到xx平台的约稿了吗？最近在招募插画师",
+          "type": "normal"
+        },
+        {
+          "id": "msg_002",
+          "sender": "小涵",
+          "time": "2026-05-04T15:00:00",
+          "content": "@小周 你的画风超适合这个brief！是赛博朋克风格的",
+          "type": "at_reminder"
+        },
+        {
+          "id": "msg_003",
+          "sender": "群友B",
+          "time": "2026-05-04T16:00:00",
+          "content": "我投了！还没回复",
+          "type": "normal"
+        },
+        {
+          "id": "msg_004",
+          "sender": "小周",
+          "time": "2026-05-04T18:00:00",
+          "content": "谢谢推荐！我看看",
+          "type": "normal"
+        },
+        {
+          "id": "msg_005",
+          "sender": "群友C",
+          "time": "2026-05-03T20:00:00",
+          "content": "【转载】国内知名插画师访谈：商业与艺术的平衡",
+          "type": "announcement",
+          "urgency": "low"
+        },
+        {
+          "id": "msg_006",
+          "sender": "小周",
+          "time": "2026-05-03T22:30:00",
+          "content": "这期访谈真的很有启发",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "film_club",
+      "name": "胶片摄影群",
+      "type": "兴趣群",
+      "member_count": 89,
+      "recent_messages": [
+        {
+          "id": "msg_101",
+          "sender": "婷婷",
+          "time": "2026-05-02T15:00:00",
+          "content": "这周扫街约不约？想拍拍老城区",
+          "type": "announcement"
+        },
+        {
+          "id": "msg_102",
+          "sender": "小周",
+          "time": "2026-05-02T15:10:00",
+          "content": "我去！",
+          "type": "normal"
+        },
+        {
+          "id": "msg_103",
+          "sender": "群友D",
+          "time": "2026-05-02T16:00:00",
+          "content": "新入了一卷portra400，冲出来色彩绝了",
+          "type": "normal"
+        },
+        {
+          "id": "msg_104",
+          "sender": "婷婷",
+          "time": "2026-05-03T10:00:00",
+          "content": "@小周 你上次拍的胶片出片了吗",
+          "type": "at_reminder"
+        },
+        {
+          "id": "msg_105",
+          "sender": "小周",
+          "time": "2026-05-03T22:00:00",
+          "content": "还没去冲扫，这周去",
+          "type": "normal"
+        },
+        {
+          "id": "msg_106",
+          "sender": "群友E",
+          "time": "2026-05-04T11:00:00",
+          "content": "有没有人推荐冲扫店？之前的店好像关门了",
+          "type": "question"
+        },
+        {
+          "id": "msg_107",
+          "sender": "婷婷",
+          "time": "2026-05-04T11:30:00",
+          "content": "我常去的那家还不错，在老城区那边",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "commission_chat",
+      "name": "约稿沟通群-大艺",
+      "type": "约稿群",
+      "member_count": 3,
+      "recent_messages": [
+        {
+          "id": "msg_201",
+          "sender": "大艺",
+          "time": "2026-05-04T10:00:00",
+          "content": "【需求确认】插画规格：1920x1080，300dpi，赛博朋克风格，色彩偏冷",
+          "type": "announcement",
+          "urgency": "medium"
+        },
+        {
+          "id": "msg_202",
+          "sender": "大艺",
+          "time": "2026-05-04T10:05:00",
+          "content": "deadline提前到周三，比原计划提前2天，抱歉哈",
+          "type": "normal"
+        },
+        {
+          "id": "msg_203",
+          "sender": "小周",
+          "time": "2026-05-04T10:30:00",
+          "content": "有点赶...我尽量",
+          "type": "normal"
+        },
+        {
+          "id": "msg_204",
+          "sender": "大艺",
+          "time": "2026-05-04T11:00:00",
+          "content": "辛苦啦！完成得好下次继续合作",
+          "type": "normal"
+        },
+        {
+          "id": "msg_205",
+          "sender": "小周",
+          "time": "2026-05-04T15:00:00",
+          "content": "草稿我画了一部分了，发你看看方向对不对",
+          "type": "normal"
+        },
+        {
+          "id": "msg_206",
+          "sender": "大艺",
+          "time": "2026-05-04T15:30:00",
+          "content": "这个感觉对了！继续~",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "illustration_gallery",
+      "name": "插画师互助群",
+      "type": "创作群",
+      "member_count": 230,
+      "recent_messages": [
+        {
+          "id": "msg_301",
+          "sender": "群友E",
+          "time": "2026-05-03T12:00:00",
+          "content": "【精华帖】从0到1：我是如何从只会临摹到接到第一个商稿的",
+          "type": "pin_article",
+          "urgency": "low"
+        },
+        {
+          "id": "msg_302",
+          "sender": "群友F",
+          "time": "2026-05-03T14:00:00",
+          "content": "刚用上Procreate，真的太香了",
+          "type": "discussion"
+        },
+        {
+          "id": "msg_303",
+          "sender": "小周",
+          "time": "2026-05-03T15:00:00",
+          "content": "+1 打工人的救星",
+          "type": "normal"
+        },
+        {
+          "id": "msg_304",
+          "sender": "群友G",
+          "time": "2026-05-04T09:00:00",
+          "content": "【投票】下周线下聚会：周六下午还是周日下午？",
+          "type": "vote",
+          "options": [
+            "周六下午",
+            "周日下午"
+          ],
+          "deadline": "2026-05-05T20:00:00"
+        },
+        {
+          "id": "msg_305",
+          "sender": "群友H",
+          "time": "2026-05-04T09:30:00",
+          "content": "周六下午+1",
+          "type": "normal"
+        },
+        {
+          "id": "msg_306",
+          "sender": "小周",
+          "time": "2026-05-04T10:00:00",
+          "content": "我周六可能要赶稿...周日下午可以吗",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "stationery_love",
+      "name": "文具手账群",
+      "type": "兴趣群",
+      "member_count": 180,
+      "recent_messages": [
+        {
+          "id": "msg_401",
+          "sender": "浩子",
+          "time": "2026-05-01T19:00:00",
+          "content": "新入的mt胶带绝了！分装要不要",
+          "type": "normal"
+        },
+        {
+          "id": "msg_402",
+          "sender": "群友G",
+          "time": "2026-05-01T19:30:00",
+          "content": "要！价格多少",
+          "type": "normal"
+        },
+        {
+          "id": "msg_403",
+          "sender": "浩子",
+          "time": "2026-05-01T20:00:00",
+          "content": "@小周 你之前说想要什么风格的",
+          "type": "at_reminder"
+        },
+        {
+          "id": "msg_404",
+          "sender": "小周",
+          "time": "2026-05-02T10:00:00",
+          "content": "要！复古风的那种，谢谢浩子~",
+          "type": "normal"
+        },
+        {
+          "id": "msg_405",
+          "sender": "浩子",
+          "time": "2026-05-02T10:30:00",
+          "content": "好的，下周给你带",
+          "type": "normal"
+        },
+        {
+          "id": "msg_406",
+          "sender": "群友H",
+          "time": "2026-05-03T14:00:00",
+          "content": "新入的笔尖好难用，有没有推荐的",
+          "type": "question"
+        }
+      ]
+    },
+    {
+      "id": "unreplied_zhou_v2",
+      "name": "合作洽谈群-画廊",
+      "type": "工作群",
+      "member_count": 4,
+      "recent_messages": [
+        {
+          "id": "msg_501",
+          "sender": "小凡",
+          "time": "2026-04-25T14:00:00",
+          "content": "小周，下个月的插画展有兴趣参加吗",
+          "type": "normal"
+        },
+        {
+          "id": "msg_502",
+          "sender": "小凡",
+          "time": "2026-04-28T15:00:00",
+          "content": "作品集准备好了吗",
+          "type": "normal"
+        },
+        {
+          "id": "msg_503",
+          "sender": "小凡",
+          "time": "2026-05-02T10:00:00",
+          "content": "小周？",
+          "type": "normal"
+        },
+        {
+          "id": "msg_504",
+          "sender": "小凡",
+          "time": "2026-05-04T11:00:00",
+          "content": "看到你在线...是在赶稿吗",
+          "type": "normal"
+        },
+        {
+          "id": "msg_505",
+          "sender": "小周",
+          "time": "2026-05-04T22:00:00",
+          "content": "抱歉抱歉最近在赶一个商稿！插画展的事我看了，有兴趣的！",
+          "type": "normal"
+        },
+        {
+          "id": "msg_506",
+          "sender": "小周",
+          "time": "2026-05-04T22:05:00",
+          "content": "作品集这周整理一下发你",
+          "type": "normal"
+        }
+      ]
+    }
+  ]
+}

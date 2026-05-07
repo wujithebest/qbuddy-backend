@@ -1,0 +1,258 @@
+{
+  "contacts": [
+    {
+      "id": "xiaohan",
+      "name": "小涵",
+      "relationship_type": "画友",
+      "tags": [
+        "插画",
+        "创作交流"
+      ],
+      "baseline_interval": 48.0,
+      "last_interaction_time": "2026-05-03T20:00:00",
+      "birthday": "2026-07-22",
+      "chat_history_summary": "画圈认识的朋友，插画师同行，经常交流创作心得。关系很好。",
+      "interest_tags": [
+        "插画",
+        "数码绘画",
+        "约稿"
+      ],
+      "temperature": 0.85
+    },
+    {
+      "id": "xiaoting",
+      "name": "婷婷",
+      "relationship_type": "摄影圈好友",
+      "tags": [
+        "胶片摄影",
+        "约拍"
+      ],
+      "baseline_interval": 72.0,
+      "last_interaction_time": "2026-05-02T15:00:00",
+      "birthday": "2026-04-15",
+      "chat_history_summary": "胶片摄影圈的朋友，一起出去扫过街。约过几次拍人像。",
+      "interest_tags": [
+        "胶片摄影",
+        "人像",
+        "暗房"
+      ],
+      "temperature": 0.72
+    },
+    {
+      "id": "laowang_zhou",
+      "name": "房东老王",
+      "relationship_type": "房东",
+      "tags": [
+        "房东",
+        "偶尔聊天"
+      ],
+      "baseline_interval": 720.0,
+      "last_interaction_time": "2026-04-28T10:00:00",
+      "birthday": "1970-02-28",
+      "chat_history_summary": "房东叔叔，偶尔收房租时聊几句。不是社交关系但会定期联系。",
+      "interest_tags": [
+        "租房",
+        "生活"
+      ],
+      "temperature": 0.4
+    },
+    {
+      "id": "xiaoli_zhou",
+      "name": "小李",
+      "relationship_type": "前画室同学",
+      "tags": [
+        "水彩画室",
+        "已不画了"
+      ],
+      "baseline_interval": 168.0,
+      "last_interaction_time": "2026-04-18T21:00:00",
+      "birthday": "2026-10-03",
+      "chat_history_summary": "之前画室一起学画的同学，后来她不画了，关系慢慢变淡。",
+      "interest_tags": [
+        "水彩",
+        "画室"
+      ],
+      "temperature": 0.35,
+      "recent_events": [
+        "2026-04-28 发朋友圈：又开始追剧了"
+      ]
+    },
+    {
+      "id": "xiaoqin_zhou",
+      "name": "阿琴",
+      "relationship_type": "独立音乐人",
+      "tags": [
+        "独立音乐",
+        "创作交流"
+      ],
+      "baseline_interval": 72.0,
+      "last_interaction_time": "2026-05-01T19:00:00",
+      "birthday": "2026-03-08",
+      "chat_history_summary": "认识的独立音乐人，作品风格很喜欢，偶尔交流创作灵感。",
+      "interest_tags": [
+        "独立音乐",
+        "民谣",
+        "创作"
+      ],
+      "temperature": 0.75
+    },
+    {
+      "id": "haozi_zhou",
+      "name": "浩子",
+      "relationship_type": "同好圈老友",
+      "tags": [
+        "手账",
+        "文具控"
+      ],
+      "baseline_interval": 168.0,
+      "last_interaction_time": "2026-04-20T20:00:00",
+      "birthday": "2026-01-18",
+      "chat_history_summary": "手账圈认识的朋友，文具控，经常交流新入手的文具。",
+      "interest_tags": [
+        "手账",
+        "文具",
+        "收藏"
+      ],
+      "temperature": 0.58
+    },
+    {
+      "id": "xiaoxiao_zhou",
+      "name": "潇潇",
+      "relationship_type": "编辑",
+      "tags": [
+        "约稿编辑",
+        "合作"
+      ],
+      "baseline_interval": 24.0,
+      "last_interaction_time": "2026-05-04T10:00:00",
+      "birthday": "2026-06-12",
+      "chat_history_summary": "经常约我稿子的编辑，合作很愉快，回复比较及时。",
+      "interest_tags": [
+        "约稿",
+        "出版",
+        "编辑"
+      ],
+      "temperature": 0.82
+    },
+    {
+      "id": "dayi",
+      "name": "大艺",
+      "relationship_type": "甲方",
+      "tags": [
+        "插画约稿",
+        "催稿"
+      ],
+      "baseline_interval": 48.0,
+      "last_interaction_time": "2026-05-04T15:00:00",
+      "birthday": "2026-11-20",
+      "chat_history_summary": "约稿甲方，风格要求比较高，经常催进度。但单子质量不错。",
+      "interest_tags": [
+        "商业插画",
+        "甲方"
+      ],
+      "temperature": 0.7
+    },
+    {
+      "id": "xiaofan_zhou",
+      "name": "小凡",
+      "relationship_type": "画廊策展人",
+      "tags": [
+        "画廊策展",
+        "合作机会"
+      ],
+      "baseline_interval": 336.0,
+      "last_interaction_time": "2026-04-10T14:00:00",
+      "birthday": "2026-08-30",
+      "chat_history_summary": "画廊策展人，之前有过合作洽谈。关系不深但有潜在合作机会。",
+      "interest_tags": [
+        "画廊",
+        "展览",
+        "艺术"
+      ],
+      "temperature": 0.45
+    }
+  ],
+  "edges": [
+    {
+      "source": "user",
+      "target": "xiaohan",
+      "weight": 0.85,
+      "temperature": 0.85,
+      "edge_type": "画友",
+      "cooling_ratio": 1.0,
+      "days_since_interaction": 1
+    },
+    {
+      "source": "user",
+      "target": "xiaoting",
+      "weight": 0.72,
+      "temperature": 0.72,
+      "edge_type": "摄影圈好友",
+      "cooling_ratio": 1.5,
+      "days_since_interaction": 2
+    },
+    {
+      "source": "user",
+      "target": "laowang_zhou",
+      "weight": 0.4,
+      "temperature": 0.4,
+      "edge_type": "房东",
+      "cooling_ratio": 168.0,
+      "days_since_interaction": 6
+    },
+    {
+      "source": "user",
+      "target": "xiaoli_zhou",
+      "weight": 0.45,
+      "temperature": 0.35,
+      "edge_type": "前画室同学",
+      "cooling_ratio": 4.0,
+      "days_since_interaction": 16
+    },
+    {
+      "source": "user",
+      "target": "xiaoqin_zhou",
+      "weight": 0.75,
+      "temperature": 0.75,
+      "edge_type": "独立音乐人",
+      "cooling_ratio": 2.0,
+      "days_since_interaction": 3
+    },
+    {
+      "source": "user",
+      "target": "haozi_zhou",
+      "weight": 0.6,
+      "temperature": 0.58,
+      "edge_type": "同好圈老友",
+      "cooling_ratio": 2.0,
+      "days_since_interaction": 14
+    },
+    {
+      "source": "user",
+      "target": "xiaoxiao_zhou",
+      "weight": 0.82,
+      "temperature": 0.82,
+      "edge_type": "编辑",
+      "cooling_ratio": 0.5,
+      "days_since_interaction": 0
+    },
+    {
+      "source": "user",
+      "target": "dayi",
+      "weight": 0.75,
+      "temperature": 0.7,
+      "edge_type": "甲方",
+      "cooling_ratio": 0.375,
+      "days_since_interaction": 0
+    },
+    {
+      "source": "user",
+      "target": "xiaofan_zhou",
+      "weight": 0.5,
+      "temperature": 0.45,
+      "edge_type": "画廊策展人",
+      "cooling_ratio": 24.0,
+      "days_since_interaction": 24
+    }
+  ]
+}

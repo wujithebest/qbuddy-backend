@@ -1,0 +1,400 @@
+{
+  "groups": [
+    {
+      "id": "project_alpha",
+      "name": "项目A产品群",
+      "type": "工作群",
+      "member_count": 12,
+      "recent_messages": [
+        {
+          "id": "msg_001",
+          "sender": "小林",
+          "time": "2026-05-04T09:00:00",
+          "content": "【需求文档v3】已更新，这次改了交互逻辑，大家看看，有问题随时提",
+          "type": "announcement",
+          "urgency": "high"
+        },
+        {
+          "id": "msg_002",
+          "sender": "老王",
+          "time": "2026-05-04T10:00:00",
+          "content": "@开发 需求评审改到下午3点，别忘了",
+          "type": "at_reminder"
+        },
+        {
+          "id": "msg_003",
+          "sender": "张工",
+          "time": "2026-05-04T10:30:00",
+          "content": "这个方案技术上实现成本太高了，产品能不能优化下",
+          "type": "normal"
+        },
+        {
+          "id": "msg_004",
+          "sender": "小林",
+          "time": "2026-05-04T11:00:00",
+          "content": "😅 我和总监再讨论下方案",
+          "type": "normal"
+        },
+        {
+          "id": "msg_005",
+          "sender": "老王",
+          "time": "2026-05-04T14:00:00",
+          "content": "【用户反馈】本周用户调研结果出来了，优先级要调整下",
+          "type": "announcement",
+          "urgency": "high"
+        },
+        {
+          "id": "msg_006",
+          "sender": "小林",
+          "time": "2026-05-04T15:00:00",
+          "content": "收到 我整理下反馈",
+          "type": "normal"
+        },
+        {
+          "id": "msg_007",
+          "sender": "小鱼",
+          "time": "2026-05-04T16:00:00",
+          "content": "@小林 交互稿今天能出吗 开发等着排期",
+          "type": "at_reminder",
+          "urgency": "high"
+        },
+        {
+          "id": "msg_008",
+          "sender": "小林",
+          "time": "2026-05-04T17:00:00",
+          "content": "在肝了！今晚给",
+          "type": "normal"
+        },
+        {
+          "id": "msg_009",
+          "sender": "张工",
+          "time": "2026-05-04T17:30:00",
+          "content": "小林，上次说的那个接口文档你整理好了吗",
+          "type": "normal"
+        },
+        {
+          "id": "msg_010",
+          "sender": "小林",
+          "time": "2026-05-04T17:35:00",
+          "content": "马上马上，今天一定发你",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "dept_group",
+      "name": "产品部群",
+      "type": "部门群",
+      "member_count": 35,
+      "recent_messages": [
+        {
+          "id": "msg_101",
+          "sender": "部门总监",
+          "time": "2026-05-04T10:00:00",
+          "content": "【投票】下周团建选择：密室逃脱🎃还是剧本杀🎭？截止周五18点",
+          "type": "vote",
+          "options": [
+            "密室逃脱",
+            "剧本杀"
+          ],
+          "deadline": "2026-05-06T18:00:00"
+        },
+        {
+          "id": "msg_102",
+          "sender": "小雪",
+          "time": "2026-05-04T10:05:00",
+          "content": "剧本杀！想玩恐怖本",
+          "type": "normal"
+        },
+        {
+          "id": "msg_103",
+          "sender": "小范",
+          "time": "2026-05-04T10:10:00",
+          "content": "密室！刺激",
+          "type": "normal"
+        },
+        {
+          "id": "msg_104",
+          "sender": "HR",
+          "time": "2026-05-03T09:00:00",
+          "content": "新人小林入职一个月了，大家欢迎一下~",
+          "type": "announcement",
+          "urgency": "low"
+        },
+        {
+          "id": "msg_105",
+          "sender": "老王",
+          "time": "2026-05-03T09:05:00",
+          "content": "欢迎欢迎！有什么问题随时问",
+          "type": "normal"
+        },
+        {
+          "id": "msg_106",
+          "sender": "小雪",
+          "time": "2026-05-03T09:10:00",
+          "content": "小林来了！以后一起吐槽~",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "work_chat",
+      "name": "产品经理摸鱼群",
+      "type": "工作群",
+      "member_count": 8,
+      "recent_messages": [
+        {
+          "id": "msg_201",
+          "sender": "小范",
+          "time": "2026-05-04T21:00:00",
+          "content": "又加班到9点，今天是第五天了😭 PRD第八版了",
+          "type": "normal"
+        },
+        {
+          "id": "msg_202",
+          "sender": "小雪",
+          "time": "2026-05-04T21:05:00",
+          "content": "我也是！改到我都麻了",
+          "type": "normal"
+        },
+        {
+          "id": "msg_203",
+          "sender": "小林",
+          "time": "2026-05-04T21:10:00",
+          "content": "周末有人一起骑行吗，想透透气",
+          "type": "normal"
+        },
+        {
+          "id": "msg_204",
+          "sender": "小范",
+          "time": "2026-05-04T21:15:00",
+          "content": "我！周六上午？",
+          "type": "normal"
+        },
+        {
+          "id": "msg_205",
+          "sender": "小雪",
+          "time": "2026-05-04T21:20:00",
+          "content": "你们去吧，我要补觉...",
+          "type": "normal"
+        },
+        {
+          "id": "msg_206",
+          "sender": "小林",
+          "time": "2026-05-04T21:25:00",
+          "content": "哈哈小雪太惨了 骑行群里见！",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "coffee_group",
+      "name": "咖啡探店小分队",
+      "type": "兴趣群",
+      "member_count": 5,
+      "recent_messages": [
+        {
+          "id": "msg_301",
+          "sender": "小刚",
+          "time": "2026-04-28T15:00:00",
+          "content": "发现一家超赞的咖啡店，有插座适合办公",
+          "type": "normal"
+        },
+        {
+          "id": "msg_302",
+          "sender": "小刚",
+          "time": "2026-04-28T15:05:00",
+          "content": "周末一起去探店呗 @小林",
+          "type": "at_reminder"
+        },
+        {
+          "id": "msg_303",
+          "sender": "小林",
+          "time": "2026-04-28T18:00:00",
+          "content": "好呀！这周加班可能没空，下周呢",
+          "type": "normal"
+        },
+        {
+          "id": "msg_304",
+          "sender": "小刚",
+          "time": "2026-04-28T18:10:00",
+          "content": "行 那就下周六",
+          "type": "normal"
+        },
+        {
+          "id": "msg_305",
+          "sender": "小刚",
+          "time": "2026-05-04T14:00:00",
+          "content": "下周还是这周六吗？我看大众点评上这家评分又涨了",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "all_hands",
+      "name": "全员大会群",
+      "type": "公司群",
+      "member_count": 200,
+      "recent_messages": [
+        {
+          "id": "msg_401",
+          "sender": "CEO",
+          "time": "2026-05-03T15:00:00",
+          "content": "【重要】本周五下午3点全员大会，请大家准时参加",
+          "type": "announcement",
+          "urgency": "high"
+        },
+        {
+          "id": "msg_402",
+          "sender": "HR",
+          "time": "2026-05-03T15:30:00",
+          "content": "收到请回复1",
+          "type": "vote",
+          "options": [
+            "收到"
+          ],
+          "deadline": "2026-05-03T18:00:00"
+        },
+        {
+          "id": "msg_403",
+          "sender": "小林",
+          "time": "2026-05-03T15:32:00",
+          "content": "1",
+          "type": "normal"
+        },
+        {
+          "id": "msg_404",
+          "sender": "小范",
+          "time": "2026-05-03T15:33:00",
+          "content": "1",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "pm_sync",
+      "name": "产品同步群",
+      "type": "工作群",
+      "member_count": 18,
+      "recent_messages": [
+        {
+          "id": "msg_501",
+          "sender": "老王",
+          "time": "2026-05-04T11:00:00",
+          "content": "@所有人 下周一产品评审会议，请准备方案",
+          "type": "at_reminder",
+          "urgency": "medium"
+        },
+        {
+          "id": "msg_502",
+          "sender": "小林",
+          "time": "2026-05-04T11:05:00",
+          "content": "收到",
+          "type": "normal"
+        },
+        {
+          "id": "msg_503",
+          "sender": "小雪",
+          "time": "2026-05-04T11:06:00",
+          "content": "收到+1",
+          "type": "normal"
+        },
+        {
+          "id": "msg_504",
+          "sender": "小范",
+          "time": "2026-05-04T11:08:00",
+          "content": "收到，我的方案还需要改一下",
+          "type": "normal"
+        },
+        {
+          "id": "msg_505",
+          "sender": "老王",
+          "time": "2026-05-04T11:15:00",
+          "content": "周五下班前把初稿发我",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "ux_research",
+      "name": "用户研究群",
+      "type": "工作群",
+      "member_count": 12,
+      "recent_messages": [
+        {
+          "id": "msg_601",
+          "sender": "小雪",
+          "time": "2026-05-04T12:00:00",
+          "content": "本周用户访谈总结已发，大家看看反馈很大",
+          "type": "announcement"
+        },
+        {
+          "id": "msg_602",
+          "sender": "小林",
+          "time": "2026-05-04T12:05:00",
+          "content": "我看了，有几个点很关键",
+          "type": "normal"
+        },
+        {
+          "id": "msg_603",
+          "sender": "老王",
+          "time": "2026-05-04T12:30:00",
+          "content": "@小林 @小雪 优先级整理下周一要汇报",
+          "type": "at_reminder",
+          "urgency": "medium"
+        },
+        {
+          "id": "msg_604",
+          "sender": "小林",
+          "time": "2026-05-04T12:35:00",
+          "content": "好的 我今晚整理出来",
+          "type": "normal"
+        },
+        {
+          "id": "msg_605",
+          "sender": "小雪",
+          "time": "2026-05-04T12:40:00",
+          "content": "我也整理下用户反馈的共性问题",
+          "type": "normal"
+        }
+      ]
+    },
+    {
+      "id": "weekly_report",
+      "name": "周报提醒群",
+      "type": "工作群",
+      "member_count": 15,
+      "recent_messages": [
+        {
+          "id": "msg_701",
+          "sender": "HR",
+          "time": "2026-05-04T10:00:00",
+          "content": "【提醒】本周周报截止时间是周五18:00，还没提交的抓紧啦",
+          "type": "announcement",
+          "urgency": "medium"
+        },
+        {
+          "id": "msg_702",
+          "sender": "小范",
+          "time": "2026-05-04T10:05:00",
+          "content": "写完了！终于...",
+          "type": "normal"
+        },
+        {
+          "id": "msg_703",
+          "sender": "小林",
+          "time": "2026-05-04T10:10:00",
+          "content": "我也刚写完，差点忘了",
+          "type": "normal"
+        },
+        {
+          "id": "msg_704",
+          "sender": "小雪",
+          "time": "2026-05-04T10:15:00",
+          "content": "你们都这么积极的吗",
+          "type": "normal"
+        }
+      ]
+    }
+  ]
+}

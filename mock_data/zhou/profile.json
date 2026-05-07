@@ -1,0 +1,77 @@
+{
+  "id": "zhou",
+  "name": "小周",
+  "identity_type": "interest_focused",
+  "persona": {
+    "age": 22,
+    "grade": "独立插画师·自由职业1年",
+    "personality": "创造力旺盛、沉迷创作容易失联、社交圈子围绕兴趣展开、作息不规律",
+    "interests": [
+      "插画",
+      "摄影",
+      "手账",
+      "独立音乐",
+      "胶片相机"
+    ],
+    "habits": [
+      "经常深夜创作",
+      "画稿时消息全忽略",
+      "频道里很活跃但私聊很慢",
+      "出门必带相机"
+    ],
+    "tone": "语气文艺但真实，偶尔冒出创作灵感，和朋友聊天很放松，喜欢分享作品"
+  },
+  "stats": {
+    "total_contacts": 10,
+    "active_groups": 6,
+    "daily_msg_avg": 40,
+    "创作领域": "插画"
+  },
+  "current_context": {
+    "date": "2026-05-04",
+    "time": "22:30",
+    "location": "工作室",
+    "mood": "创作中",
+    "recent_events": [
+      "接到新约稿",
+      "胶片终于冲扫完成"
+    ]
+  },
+  "graph_summary": {
+    "total_nodes": 12,
+    "high_temp_nodes": 4,
+    "cold_nodes": 2,
+    "avg_temperature": 0.58
+  },
+  "cold_start_params": {
+    "threshold_multiplier": 0.9,
+    "buddy_cooling_threshold": 2.5,
+    "dormant_threshold": 5.0,
+    "dormant_days_threshold": 30,
+    "card_tone": "文艺但真实",
+    "card_length": "medium",
+    "emoji_usage": "moderate",
+    "interest_weights": {
+      "插画": 0.95,
+      "摄影": 0.85,
+      "手账": 0.75,
+      "独立音乐": 0.7,
+      "胶片相机": 0.8
+    },
+    "event_weights": {
+      "DDL": 1.0,
+      "VOTE": 1.0,
+      "REQUEST": 1.0,
+      "BIRTHDAY": 1.0,
+      "CHANNEL_RECOMMEND": 1.3
+    },
+    "push_hours": [
+      10,
+      11,
+      14,
+      15,
+      16,
+      21
+    ]
+  }
+}

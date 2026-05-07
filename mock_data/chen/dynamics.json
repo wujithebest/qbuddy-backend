@@ -1,0 +1,126 @@
+{
+  "dynamics": [
+    {
+      "id": "dyn_001",
+      "author": "游戏搭子小王",
+      "avatar": "🎮",
+      "time": "2小时前",
+      "content": "终于上王者了！连胜8把冲上去的，这波手感太好了🎉",
+      "images": [],
+      "likes": 15,
+      "comments": 3,
+      "related_interests": [
+        "王者荣耀",
+        "游戏"
+      ]
+    },
+    {
+      "id": "dyn_002",
+      "author": "考研党小李",
+      "avatar": "📚",
+      "time": "昨天",
+      "content": "考研终于结束了！不管结果如何，这一年都值了。接下来要好好放松一下~",
+      "images": [
+        "📖"
+      ],
+      "likes": 28,
+      "comments": 12,
+      "related_interests": [
+        "考研",
+        "学习"
+      ]
+    },
+    {
+      "id": "dyn_003",
+      "author": "室友小张",
+      "avatar": "👦",
+      "time": "3天前",
+      "content": "图书馆闭关 day30，今天终于把数据库实验报告肝完了！累但值得💪",
+      "images": [
+        "📚"
+      ],
+      "likes": 8,
+      "comments": 2,
+      "related_interests": [
+        "编程",
+        "数据库"
+      ]
+    },
+    {
+      "id": "dyn_004",
+      "author": "同学小刘",
+      "avatar": "🧑",
+      "time": "4天前",
+      "content": "有没有人一起组队刷LeetCode啊，每日一题那种，互相监督！",
+      "images": [],
+      "likes": 5,
+      "comments": 6,
+      "related_interests": [
+        "算法",
+        "编程"
+      ]
+    },
+    {
+      "id": "dyn_005",
+      "author": "顾芳",
+      "avatar": "👩‍🔬",
+      "time": "1周前",
+      "content": "保研夏令营通过了！感谢这一路帮助过我的人，接下来继续加油~",
+      "images": [
+        "🎓"
+      ],
+      "likes": 42,
+      "comments": 15,
+      "related_interests": [
+        "算法",
+        "保研",
+        "学术"
+      ]
+    },
+    {
+      "id": "dyn_006",
+      "author": "老陈",
+      "avatar": "🏀",
+      "time": "1周前",
+      "content": "周末约球，有人来吗？篮球场上见！",
+      "images": [],
+      "likes": 6,
+      "comments": 4,
+      "related_interests": [
+        "篮球",
+        "运动"
+      ]
+    },
+    {
+      "id": "dyn_007",
+      "author": "爸爸",
+      "avatar": "👨",
+      "time": "2周前",
+      "content": "今天钓鱼收获不错，钓到三条大鲫鱼~",
+      "images": [
+        "🐟"
+      ],
+      "likes": 3,
+      "comments": 1,
+      "related_interests": [
+        "钓鱼"
+      ]
+    },
+    {
+      "id": "dyn_008",
+      "author": "小李",
+      "avatar": "📚",
+      "time": "2周前",
+      "content": "健身房打卡 Day 15，虽然考研压力大，但运动真的能解压！",
+      "images": [
+        "💪"
+      ],
+      "likes": 18,
+      "comments": 5,
+      "related_interests": [
+        "健身",
+        "考研"
+      ]
+    }
+  ]
+}
