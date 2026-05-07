@@ -1425,7 +1425,7 @@ def _format_channel_card(channel_info, match_interest, frontend_channel_id=None)
 
 if __name__ == '__main__':
     import os
-    port = int(os.environ.get('PORT', 8000))
+    port = int(os.environ.get('PORT', 8080))
     print("=" * 50)
     print("QBuddy Backend Starting...")
     print(f"Access Password: {ACCESS_PASSWORD}")
