@@ -32,12 +32,13 @@ class ScenarioDetector:
 
 
 class GroupMessageExtractor(ScenarioDetector):
-    """场景1：群消息关键信息提取（支持 LLM 分析原始消息）"""
+    """场景1：群消息关键信息提取（LLM 分析 + 快速 fallback）"""
     
     def detect(self) -> List[dict]:
         """
-        从群聊中提取 DDL、投票、@提醒
-        优先使用 LLM 分析原始消息，fallback 到预设 type 字段
+        从群聊中提取关键信息
+        1. 先尝试 LLM 分析
+        2. 如果消息有预设 type，直接使用
         """
         results = []
         
@@ -45,37 +46,39 @@ class GroupMessageExtractor(ScenarioDetector):
             group_name = group.get("name", "")
             messages = group.get("recent_messages", [])
             
-            # 方法1：使用 LLM 分析原始消息
-            llm_results = self._extract_with_llm(messages, group_name)
+            if not messages:
+                continue
             
-            if llm_results:
-                # 使用 LLM 分析结果
-                for item in llm_results:
-                    item["source_group"] = group_name
-                    item["source_group_id"] = group.get("id")
-                    item["scenario"] = "group_message_extraction"
-                    item["action_required"] = self._get_action_hint(item.get("type", "normal"))
+            # 优先使用预设 type（最快）
+            for msg in messages:
+                msg_type = msg.get("type", "normal")
+                if msg_type in ["announcement", "vote", "at_reminder", "ddl", "request"]:
+                    item = {
+                        "id": msg.get("id"),
+                        "type": msg_type,
+                        "content": msg.get("content"),
+                        "sender": msg.get("sender"),
+                        "time": msg.get("time"),
+                        "source_group": group_name,
+                        "source_group_id": group.get("id"),
+                        "urgency": msg.get("urgency", "medium"),
+                        "deadline": msg.get("deadline"),
+                        "options": msg.get("options"),
+                        "scenario": "group_message_extraction",
+                        "action_required": self._get_action_hint(msg_type)
+                    }
                     results.append(item)
-            else:
-                # 方法2：Fallback 到预设 type 字段
-                for msg in messages:
-                    msg_type = msg.get("type", "normal")
-                    
-                    if msg_type in ["announcement", "vote", "at_reminder"]:
-                        item = {
-                            "id": msg.get("id"),
-                            "type": msg_type,
-                            "content": msg.get("content"),
-                            "sender": msg.get("sender"),
-                            "time": msg.get("time"),
-                            "source_group": group_name,
-                            "source_group_id": group.get("id"),
-                            "urgency": msg.get("urgency", "medium"),
-                            "deadline": msg.get("deadline"),
-                            "options": msg.get("options"),
-                            "scenario": "group_message_extraction",
-                            "action_required": self._get_action_hint(msg_type)
-                        }
+            
+            # 如果没有预设类型的重要消息，尝试 LLM（简单模式）
+            has_important = any(m.get("type") in ["announcement", "vote", "at_reminder"] for m in messages)
+            if not has_important:
+                # LLM 快速分析（只分析前10条消息，避免过长）
+                llm_result = self._quick_llm_extract(messages[:10], group_name)
+                if llm_result:
+                    for item in llm_result:
+                        item["source_group"] = group_name
+                        item["source_group_id"] = group.get("id")
+                        item["scenario"] = "group_message_extraction"
                         results.append(item)
         
         # 按紧迫程度排序
@@ -84,23 +87,24 @@ class GroupMessageExtractor(ScenarioDetector):
         
         return results
     
-    def _extract_with_llm(self, messages: List[dict], group_name: str) -> List[dict]:
-        """
-        使用 LLM 从原始消息中提取关键信息
-        将消息格式化为文本，发送给 LLM 分析
-        """
-        if not messages:
+    def _quick_llm_extract(self, messages: List[dict], group_name: str) -> List[dict]:
+        """快速 LLM 分析（处理少量消息）"""
+        if len(messages) < 3:
             return []
         
-        # 将消息格式化为文本
-        messages_text = self._format_messages_for_llm(messages)
+        # 格式化消息
+        lines = []
+        for msg in messages:
+            sender = msg.get("sender", "")
+            content = msg.get("content", "")[:100]  # 限制长度
+            lines.append(f"{sender}: {content}")
         
-        # 调用 LLM 分析
+        messages_text = "\n".join(lines)
+        
         try:
-            llm_result = llm_service.extract_group_info(messages_text, group_name)
-            
-            if llm_result and "items" in llm_result:
-                items = llm_result["items"]
+            result = llm_service.extract_group_info(messages_text, group_name)
+            if result and "items" in result:
+                items = result["items"]
                 if isinstance(items, list) and len(items) > 0:
                     print(f"[GroupMessageExtractor] LLM 分析到 {len(items)} 条关键信息")
                     return items
@@ -109,34 +113,13 @@ class GroupMessageExtractor(ScenarioDetector):
         
         return []
     
-    def _format_messages_for_llm(self, messages: List[dict]) -> str:
-        """
-        将消息列表格式化为 LLM 可读的文本
-        保留发送者、内容和时间信息
-        """
-        lines = []
-        for msg in messages:
-            sender = msg.get("sender", "未知")
-            content = msg.get("content", "")
-            time_str = msg.get("time", "")
-            
-            # 简化时间格式
-            if "T" in time_str:
-                time_str = time_str.split("T")[1][:5] if "T" in time_str else time_str
-            
-            lines.append(f"[{time_str}] {sender}: {content}")
-        
-        return "\n".join(lines)
-    
-    def detect_with_llm(self, messages_text: str, group_name: str) -> dict:
-        """使用LLM深度提取"""
-        return llm_service.extract_group_info(messages_text)
-    
     def _get_action_hint(self, msg_type: str) -> str:
         hints = {
             "announcement": "查看并确认",
             "vote": "请尽快投票",
-            "at_reminder": "需要回复"
+            "at_reminder": "需要回复",
+            "ddl": "按时完成",
+            "request": "回复一下"
         }
         return hints.get(msg_type, "查看详情")
 
