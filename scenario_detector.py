@@ -299,6 +299,67 @@ class BuddyCoolingDetector(ScenarioDetector):
 class DormantReactivationDetector(ScenarioDetector):
     """场景3：沉寂关系重新激活"""
     
+    # 预设问候模板（按事件类型分类）
+    GREETING_TEMPLATES = {
+        "考研出分": [
+            "听说考研出分了！考的怎么样啦？",
+            "考研结果出来了吧，近来如何？",
+            "看到考研出分了，来问问你~"
+        ],
+        "新公司入职": [
+            "入职顺利吗？新环境还习惯吗？",
+            "听说你入职新公司了，加油呀！",
+            "新工作还适应吗？"
+        ],
+        "晋升": [
+            "恭喜晋升！晚上有空出来庆祝一下？",
+            "听说你升职啦？太厉害了！",
+            "晋升快乐！有空聊聊？"
+        ],
+        "项目完成": [
+            "项目搞定了？辛苦了~",
+            "听说项目交付了，最近忙坏了吧？",
+            "项目结束啦？休息一下呗~"
+        ],
+        "插画展": [
+            "插画展快开始了，要一起去看吗？",
+            "看到插画展的信息，想起你了~",
+            "最近有插画展，有兴趣吗？"
+        ],
+        "新作品": [
+            "看到你发新作品了，好棒！",
+            "新作完成了吗？期待~",
+            "你的新作品超好看的！"
+        ],
+        "约稿完成": [
+            "约稿顺利交付啦？辛苦！",
+            "看到你完成约稿了，休息一下~",
+            "稿子交了？庆祝一下？"
+        ],
+        "生日临近": [
+            "快到你生日啦，准备怎么过？",
+            "生日快到了呢，期待ing~",
+            "想起来你的生日快到了！"
+        ],
+        "游戏成就": [
+            "看到你上王者了！带带我吗~",
+            "听说你游戏打出成绩了？",
+            "游戏打得不错呀！"
+        ],
+        "健身打卡": [
+            "最近健身效果怎么样？",
+            "健身还在坚持吗？",
+            "看到你健身的动态了~"
+        ],
+        "default": [
+            "嘿~好久不见，最近怎么样？",
+            "好久没聊了，在忙什么呢？",
+            "最近好吗？好久没联系了~",
+            "嗨~突然想起来你，好久没聊了",
+            "在吗？突然想起你了哈哈"
+        ]
+    }
+    
     def detect(self) -> List[dict]:
         """检测可以重新激活的沉寂关系"""
         results = []
@@ -345,13 +406,8 @@ class DormantReactivationDetector(ScenarioDetector):
             if not topic_context:
                 continue
             
-            # 生成LLM开口建议
-            greeting = llm_service.generate_greeting(
-                contact_name=contact.name,
-                relationship=contact.relationship_type,
-                topic_context=topic_context,
-                event_signal=event_signal
-            )
+            # 使用预设模板生成开口建议（跳过LLM调用以提升速度）
+            greeting = self._generate_greeting_from_template(event_signal)
             
             result = {
                 "contact_id": contact_id,
@@ -398,6 +454,11 @@ class DormantReactivationDetector(ScenarioDetector):
         if contact.tags:
             return "、".join(contact.tags)
         return ""
+    
+    def _generate_greeting_from_template(self, event_signal: str) -> str:
+        """从预设模板生成问候语"""
+        templates = self.GREETING_TEMPLATES.get(event_signal, self.GREETING_TEMPLATES["default"])
+        return random.choice(templates)
 
 
 class ChannelRecommendationDetector(ScenarioDetector):
@@ -455,6 +516,42 @@ class ChannelRecommendationDetector(ScenarioDetector):
 class BirthdayReminderDetector(ScenarioDetector):
     """场景5：生日提醒 + 一键祝福"""
     
+    # 预设祝福模板（按关系类型分类）
+    BLESSING_TEMPLATES = {
+        "室友": [
+            "生日快乐呀老铁！今年继续一起浪~🎉",
+            "寿星大佬生日快乐！记得请客哦~🎂",
+            "室友生日快乐！新的一岁一起加油~🎈"
+        ],
+        "同学": [
+            "生日快乐！有空一起吃饭呀~🎉",
+            "生日快乐同学！好久没聊了~🎂",
+            "祝你生日快乐！学业顺利~📚"
+        ],
+        "搭子": [
+            "搭子生日快乐！下次一起玩呀~🎮",
+            "生日快乐！咱俩搭子情谊长存~🎉",
+            "祝搭子生日快乐！有空约起来~🎂"
+        ],
+        "好友": [
+            "生日快乐呀！友谊万岁~🎉",
+            "老朋友生日快乐！🎂",
+            "生日快乐！有空聚聚~🎈"
+        ],
+        "同事": [
+            "生日快乐！工作顺利~💼",
+            "生日快乐呀同事！🎉",
+            "祝你生日快乐！天天开心~🎂"
+        ],
+        "default": [
+            "生日快乐呀！🎂 愿你天天开心~",
+            "祝你生日快乐！新的一岁一切顺利~🎉",
+            "生日快乐！要开心哦~🎈",
+            "HBD! 愿所有美好都如期而至~🌟",
+            "生日快乐呀！🎂 别忘了今晚吃蛋糕~"
+        ]
+    }
+    
     def detect(self) -> List[dict]:
         """检测即将到来或已到的生日"""
         results = []
@@ -477,13 +574,8 @@ class BirthdayReminderDetector(ScenarioDetector):
                 
                 # 只提醒7天内的
                 if days_until <= 7:
-                    # 生成个性化祝福
-                    blessing = llm_service.generate_blessing(
-                        contact_name=contact["name"],
-                        relationship=contact["relationship_type"],
-                        chat_history=contact.get("chat_history_summary", ""),
-                        birthday_type="birthday"
-                    )
+                    # 使用预设模板生成祝福（跳过LLM调用以提升速度）
+                    blessing = self._generate_blessing_from_template(contact["relationship_type"])
                     
                     result = {
                         "contact_id": contact["id"],
