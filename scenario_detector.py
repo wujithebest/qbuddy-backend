@@ -48,13 +48,13 @@ class ScenarioDetector:
 
 
 class GroupMessageExtractor(ScenarioDetector):
-    """场景1：群消息关键信息提取（LLM 实时分析原始文本）"""
+    """场景1：群消息关键信息提取（基于 LLM 图谱分析结果）"""
     
     def detect(self) -> List[dict]:
         """
         从群聊中提取关键信息
-        核心逻辑：始终使用 LLM 分析原始消息文本，按预设场景类型识别
-        识别类型：公告(announcement)、投票(vote)、@提醒(at_reminder)、DDL(ddl)、请求(request)
+        核心逻辑：基于第一阶段 LLM 构建的图谱，提取需要推送的消息卡片
+        不再重复调用 LLM，直接使用图谱数据和预设类型
         """
         results = []
         
@@ -65,38 +65,67 @@ class GroupMessageExtractor(ScenarioDetector):
             if not messages:
                 continue
             
-            # 获取当前用户名，用于识别 @提醒
-            role_name = self._get_role_name()
+            # 从图谱中获取 LLM 分析的 tags
+            graph_tags = []
+            if self.graph:
+                graph_data = self.graph.get_graph_data()
+                graph_tags = graph_data.get("tags", [])
             
-            # 始终使用 LLM 分析原始消息文本
-            # 每次分析最多10条消息，避免 LLM context 过长
-            batch_size = 10
-            for i in range(0, len(messages), batch_size):
-                batch_messages = messages[i:i+batch_size]
+            # 使用预设 type 或基于图谱分析结果
+            for msg in messages:
+                msg_type = msg.get("type", "normal")
+                content = msg.get("content", "")
+                sender = msg.get("sender", "")
                 
-                # LLM 实时分析
-                llm_result = self._llm_extract_key_info(batch_messages, group_name, role_name)
-                if llm_result:
-                    for item in llm_result:
-                        item["source_group"] = group_name
-                        item["source_group_id"] = group.get("id")
-                        item["scenario"] = "group_message_extraction"
-                        results.append(item)
+                # 重要类型直接提取
+                if msg_type in ["announcement", "vote", "at_reminder", "ddl", "request"]:
+                    # 判断紧迫程度
+                    urgency = self._determine_urgency(msg_type, content, graph_tags)
+                    
+                    item = {
+                        "id": msg.get("id"),
+                        "type": msg_type,
+                        "content": content,
+                        "full_content": content,
+                        "sender": sender,
+                        "time": msg.get("time"),
+                        "source_group": group_name,
+                        "source_group_id": group.get("id"),
+                        "urgency": urgency,
+                        "deadline": msg.get("deadline"),
+                        "options": msg.get("options"),
+                        "scenario": "group_message_extraction",
+                        "action_required": self._get_action_hint(msg_type)
+                    }
+                    results.append(item)
         
         # 按紧迫程度排序
         urgency_order = {"high": 0, "medium": 1, "low": 2}
         results.sort(key=lambda x: urgency_order.get(x.get("urgency", "medium"), 1))
         
-        # 去重：相同内容只保留一条
-        seen = set()
-        unique_results = []
-        for r in results:
-            key = (r.get('content', '')[:50], r.get('type', ''))
-            if key not in seen:
-                seen.add(key)
-                unique_results.append(r)
+        return results
+    
+    def _determine_urgency(self, msg_type: str, content: str, graph_tags: list) -> str:
+        """根据消息类型和内容判断紧迫程度"""
+        # @提醒通常较紧急
+        if msg_type == "at_reminder":
+            if any(kw in content for kw in ["紧急", "快", "马上", "今天", "尽快"]):
+                return "high"
+            return "medium"
         
-        return unique_results
+        # 投票通常有截止时间
+        if msg_type == "vote":
+            if "截止" in content or "今天" in content or "明天" in content:
+                return "high"
+            return "medium"
+        
+        # 公告
+        if msg_type == "announcement":
+            if any(kw in content for kw in ["重要", "紧急", "必须", "截止"]):
+                return "high"
+            return "medium"
+        
+        return "medium"
     
     def _llm_extract_key_info(self, messages: List[dict], group_name: str, role_name: str = "我") -> List[dict]:
         """
