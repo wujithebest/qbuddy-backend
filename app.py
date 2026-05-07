@@ -608,14 +608,21 @@ def list_profiles():
 def qbuddy_scan(role):
     """
     SSE端点：实时扫描并流式返回结果
-    流程：
-    1. 加载历史数据
-    2. 使用 LLM 分析群消息，构建/更新图谱
-    3. 运行场景检测器，生成推送卡片
+    
+    流程分两段：
+    第一段：LLM分析数据并构建图谱
+    第二段：整合输出部分（场景检测器）
     """
+    import sys
+    import time as time_module
     
     def generate():
+        start_total = time_module.time()
+        
         try:
+            # ========== 第一段：LLM分析数据并构建图谱 ==========
+            phase1_start = time_module.time()
+            
             # Step 1: 打招呼
             yield f"data: {json.dumps({'type': 'progress', 'step': 'init', 'message': '哈咯~让我看看你的消息~'})}\n\n"
             
@@ -635,8 +642,8 @@ def qbuddy_scan(role):
             graph_engine = GraphEngine()
             graph_engine.load_data(role, DATA_PATH)
             
-            # Step 3: 使用 LLM 分析所有群消息，构建图谱
-            yield f"data: {json.dumps({'type': 'progress', 'step': 'llm_analyze', 'message': '正在用 AI 分析群消息，构建关系图谱...'})}\n\n"
+            # Step 3: LLM分析消息
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'llm_analyze', 'message': f'正在用 AI 分析群消息，构建关系图谱...(预计30-60秒)'})}\n\n"
             
             # 收集所有群消息
             all_messages = []
@@ -648,31 +655,30 @@ def qbuddy_scan(role):
                         if messages:
                             all_messages.extend(messages)
             except Exception as e:
-                print(f"[QBuddy] 加载群消息失败: {e}")
+                print(f"[QBuddy] 加载群消息失败: {e}", flush=True)
             
-            # 使用 LLM 分析消息，构建图谱
+            llm_result = {"nodes_to_add": [], "nodes_to_update": [], "nodes_to_delete": [], "edges_to_add": [], "tags": [], "summary": ""}
+            llm_time = 0
+            
             if all_messages:
-                import sys
                 print(f"[QBuddy] 开始LLM分析，共{len(all_messages)}条消息...", flush=True)
                 sys.stdout.flush()
                 
+                llm_start = time_module.time()
                 llm_result = llm_service.analyze_messages_for_graph(all_messages, role_name)
-                print(f"[QBuddy] LLM分析完成，结果: {llm_result}", flush=True)
+                llm_time = time_module.time() - llm_start
+                
+                print(f"[QBuddy] LLM分析完成，耗时{llm_time:.2f}秒，结果: {llm_result}", flush=True)
                 sys.stdout.flush()
                 
                 # 应用 LLM 结果到图谱
                 apply_result = graph_engine.apply_llm_result(llm_result)
-                
-                print(f"[QBuddy] 应用结果: 添加{apply_result['nodes_added']}节点, "
-                      f"标签{apply_result['tags']}", flush=True)
+                print(f"[QBuddy] 应用结果: {apply_result}", flush=True)
                 sys.stdout.flush()
                 
                 # 发送 LLM 分析摘要
                 if apply_result.get('summary'):
                     yield f"data: {json.dumps({'type': 'dialogue', 'text': apply_result['summary']})}\n\n"
-            else:
-                print("[QBuddy] 没有消息需要分析", flush=True)
-                sys.stdout.flush()
             
             # 更新温度
             graph_engine.update_temperatures()
@@ -680,21 +686,19 @@ def qbuddy_scan(role):
             # 获取图谱数据
             graph_data = graph_engine.get_graph_data()
             
-            yield f"data: {json.dumps({'type': 'progress', 'step': 'graph', 'message': '关系图谱构建完成~', 'graph_data': graph_data})}\n\n"
+            phase1_time = time_module.time() - phase1_start
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'graph', 'message': f'✅ 第一段完成：图谱构建耗时 {phase1_time:.1f}秒', 'graph_data': graph_data, 'phase1_time': phase1_time})}\n\n"
             
-            # Step 4: 运行场景检测器
+            # ========== 第二段：整合输出部分 ==========
+            phase2_start = time_module.time()
+            
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'integration', 'message': '正在整合输出...'})}\n\n"
+            
+            # 运行场景检测器
             detector_manager = ScenarioDetectorManager(graph_engine)
             detector_manager.load_data(role, DATA_PATH)
             
-            # 加载用户profile用于语气描述
-            profile = {}
-            try:
-                with open(f"{DATA_PATH}/{role}/profile.json", "r", encoding="utf-8") as f:
-                    profile = json.load(f)
-            except:
-                pass
-            
-            # 检测器配置列表 - 添加请求响应检测
+            # 检测器配置列表
             detectors_config = [
                 ('group_extract', '正在扫描群聊消息...', 'group'),
                 ('request_response', '正在检查请求回复...', 'request'),
@@ -707,7 +711,7 @@ def qbuddy_scan(role):
             
             for det_key, progress_msg, card_type in detectors_config:
                 yield f"data: {json.dumps({'type': 'progress', 'step': det_key, 'message': progress_msg})}\n\n"
-                time.sleep(0.5)
+                time.sleep(0.3)
                 
                 if det_key == 'group_extract':
                     results = detector_manager.extractor.detect()
@@ -715,16 +719,15 @@ def qbuddy_scan(role):
                         try:
                             card = _format_group_card(r)
                             all_cards.append(card)
-                            # 推送对话+卡片
                             dialogue = _generate_group_dialogue(r)
                             yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
-                            time.sleep(0.5)
+                            time.sleep(0.3)
                             yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': _get_highlight_for_result(graph_engine, card)})}\n\n"
-                            time.sleep(0.6)
+                            time.sleep(0.4)
                         except Exception as e:
-                            print(f"[{det_key}] 处理卡片失败: {e}")
+                            print(f"[{det_key}] 处理卡片失败: {e}", flush=True)
                             continue
-                        
+                
                 elif det_key == 'request_response':
                     results = detector_manager.request_detector.detect()
                     for r in results:
@@ -890,11 +893,11 @@ def qbuddy_scan(role):
                     yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
                     time.sleep(0.5)
                     yield f"data: {json.dumps({'type': 'card', 'data': channel_card, 'graph_highlight': {}})}\n\n"
-                    time.sleep(0.6)
+                    time.sleep(0.4)
             
-            # Step 3: 完成总结
-            card_end = time.time()
-            card_time = card_end - graph_end
+            # ========== 完成总结 ==========
+            phase2_time = time_module.time() - phase2_start
+            total_time = time_module.time() - start_total
             
             if all_cards:
                 summary = f"好啦~帮你整理完了，一共{len(all_cards)}件需要关注的事，快来看看吧~"
@@ -902,7 +905,15 @@ def qbuddy_scan(role):
                 summary = "看起来一切都很顺利呢！没有需要特别提醒的事项~"
             
             yield f"data: {json.dumps({'type': 'dialogue', 'text': summary})}\n\n"
-            yield f"data: {json.dumps({'type': 'done', 'total': len(all_cards), 'performance': {'graph_build_time': round(graph_time, 2), 'card_gen_time': round(card_time, 2), 'total_time': round(graph_time + card_time, 2)}})}\n\n"
+            yield f"data: {json.dumps({
+                'type': 'done', 
+                'total': len(all_cards), 
+                'performance': {
+                    'phase1_llm_time': round(phase1_time, 2),
+                    'phase2_integration_time': round(phase2_time, 2),
+                    'total_time': round(total_time, 2)
+                }
+            })}\n\n"
             
         except Exception as e:
             import traceback
