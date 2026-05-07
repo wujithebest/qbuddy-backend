@@ -652,22 +652,27 @@ def qbuddy_scan(role):
             
             # 使用 LLM 分析消息，构建图谱
             if all_messages:
-                print(f"[QBuddy] 开始LLM分析，共{len(all_messages)}条消息...")
+                import sys
+                print(f"[QBuddy] 开始LLM分析，共{len(all_messages)}条消息...", flush=True)
+                sys.stdout.flush()
+                
                 llm_result = llm_service.analyze_messages_for_graph(all_messages, role_name)
-                print(f"[QBuddy] LLM分析完成，结果: {llm_result}")
+                print(f"[QBuddy] LLM分析完成，结果: {llm_result}", flush=True)
+                sys.stdout.flush()
                 
                 # 应用 LLM 结果到图谱
                 apply_result = graph_engine.apply_llm_result(llm_result)
                 
-                print(f"[QBuddy] LLM 分析完成: 添加{apply_result['nodes_added']}个节点, "
-                      f"更新{apply_result['nodes_updated']}个节点, "
-                      f"添加{apply_result['edges_added']}条边")
+                print(f"[QBuddy] 应用结果: 添加{apply_result['nodes_added']}节点, "
+                      f"标签{apply_result['tags']}", flush=True)
+                sys.stdout.flush()
                 
                 # 发送 LLM 分析摘要
                 if apply_result.get('summary'):
                     yield f"data: {json.dumps({'type': 'dialogue', 'text': apply_result['summary']})}\n\n"
             else:
-                print("[QBuddy] 没有消息需要分析")
+                print("[QBuddy] 没有消息需要分析", flush=True)
+                sys.stdout.flush()
             
             # 更新温度
             graph_engine.update_temperatures()

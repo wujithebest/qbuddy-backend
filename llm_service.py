@@ -46,67 +46,40 @@ class LLMService:
     def analyze_messages_for_graph(self, messages: list, role_name: str = "我") -> dict:
         """
         分析消息序列，构建或更新图谱
-        返回图谱操作指令：add_node / update_node / delete_node
-        
-        Args:
-            messages: 消息列表，每条包含 sender, content, time
-            role_name: 当前用户名称，用于识别哪些消息是发给自己的
-        
-        Returns:
-            {
-                "nodes_to_add": [...],      # 需要新增的节点
-                "nodes_to_update": [...],   # 需要更新的节点
-                "nodes_to_delete": [...],   # 需要删除的节点
-                "edges_to_add": [...],       # 需要新增的边
-                "tags": [...],               # 标签，用于后续推送整合
-                "summary": "分析摘要"
-            }
+        快速版本：只分析最近10条消息，返回标签
         """
-        # 格式化消息
-        messages_text = self._format_messages(messages)
+        # 只取最近10条消息，避免超时
+        recent_messages = messages[-10:] if len(messages) > 10 else messages
         
-        prompt = f"""【任务】分析群聊消息，提取需要关注的重要信息。
+        messages_text = self._format_messages(recent_messages)
+        
+        prompt = f"""分析以下QQ消息，提取重要标签。
 
-当前用户：{role_name}
-
-消息内容：
+消息：
 {messages_text}
 
-消息中已标注类型：[公告]、[投票]、[@提醒]、[DDL]等，请重点关注这些。
+只返回JSON格式：
+{{"tags":["标签1","标签2"],"summary":"一句话总结"}}
 
-【输出JSON】（严格返回，不要其他内容）：
-{{
-    "nodes_to_add": [],
-    "edges_to_add": [],
-    "tags": ["重要公告", "待投票", "DDL提醒"],
-    "summary": "2个重要公告，1个投票需要处理"
-}}
+只返回JSON，不要其他内容。"""
 
-如果没重要信息：
-{{"nodes_to_add": [], "edges_to_add": [], "tags": [], "summary": "无重要信息"}}
-
-只返回JSON！"""
-
-        print(f"[LLM] 开始分析 {len(messages)} 条消息...")
+        print(f"[LLM] 快速分析 {len(recent_messages)} 条消息...")
         result = self._call_llm([
             {"role": "user", "content": prompt}
-        ], temperature=0.3, max_tokens=2000)
+        ], temperature=0.3, max_tokens=500)
         
         if result:
             try:
-                # 提取JSON
                 text = result.strip()
                 if "```json" in text:
                     text = text.split("```json")[1].split("```")[0]
                 elif "```" in text:
                     text = text.split("```")[1].split("```")[0]
                 
-                print(f"[LLM] 解析JSON: {text[:200]}...")
                 parsed = json.loads(text)
                 return self._validate_graph_result(parsed)
             except json.JSONDecodeError as e:
-                print(f"[LLM] JSON解析失败: {e}")
-                print(f"[LLM] 原始结果: {result[:500]}")
+                print(f"[LLM] JSON解析失败: {e}, 原始: {result[:200]}")
         
         return self._empty_result()
     
