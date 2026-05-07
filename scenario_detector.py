@@ -29,16 +29,32 @@ class ScenarioDetector:
             
         with open(f"{data_path}/{role}/contacts.json", "r", encoding="utf-8") as f:
             self.contacts_data = json.load(f)
+    
+    def _get_role_name(self) -> str:
+        """获取当前角色名"""
+        # 优先从 profile 读取
+        if self.profile:
+            name = self.profile.get("name", "")
+            if name:
+                return name
+        # fallback 到硬编码映射
+        if self.role == 'chen':
+            return '小陈'
+        elif self.role == 'lin':
+            return '小林'
+        elif self.role == 'zhou':
+            return '小周'
+        return '我'
 
 
 class GroupMessageExtractor(ScenarioDetector):
-    """场景1：群消息关键信息提取（LLM 分析 + 快速 fallback）"""
+    """场景1：群消息关键信息提取（LLM 实时分析原始文本）"""
     
     def detect(self) -> List[dict]:
         """
         从群聊中提取关键信息
-        1. 先尝试 LLM 分析
-        2. 如果消息有预设 type，直接使用
+        核心逻辑：始终使用 LLM 分析原始消息文本，按预设场景类型识别
+        识别类型：公告(announcement)、投票(vote)、@提醒(at_reminder)、DDL(ddl)、请求(request)
         """
         results = []
         
@@ -49,31 +65,17 @@ class GroupMessageExtractor(ScenarioDetector):
             if not messages:
                 continue
             
-            # 优先使用预设 type（最快）
-            for msg in messages:
-                msg_type = msg.get("type", "normal")
-                if msg_type in ["announcement", "vote", "at_reminder", "ddl", "request"]:
-                    item = {
-                        "id": msg.get("id"),
-                        "type": msg_type,
-                        "content": msg.get("content"),
-                        "sender": msg.get("sender"),
-                        "time": msg.get("time"),
-                        "source_group": group_name,
-                        "source_group_id": group.get("id"),
-                        "urgency": msg.get("urgency", "medium"),
-                        "deadline": msg.get("deadline"),
-                        "options": msg.get("options"),
-                        "scenario": "group_message_extraction",
-                        "action_required": self._get_action_hint(msg_type)
-                    }
-                    results.append(item)
+            # 获取当前用户名，用于识别 @提醒
+            role_name = self._get_role_name()
             
-            # 如果没有预设类型的重要消息，尝试 LLM（简单模式）
-            has_important = any(m.get("type") in ["announcement", "vote", "at_reminder"] for m in messages)
-            if not has_important:
-                # LLM 快速分析（只分析前10条消息，避免过长）
-                llm_result = self._quick_llm_extract(messages[:10], group_name)
+            # 始终使用 LLM 分析原始消息文本
+            # 每次分析最多10条消息，避免 LLM context 过长
+            batch_size = 10
+            for i in range(0, len(messages), batch_size):
+                batch_messages = messages[i:i+batch_size]
+                
+                # LLM 实时分析
+                llm_result = self._llm_extract_key_info(batch_messages, group_name, role_name)
                 if llm_result:
                     for item in llm_result:
                         item["source_group"] = group_name
@@ -85,29 +87,111 @@ class GroupMessageExtractor(ScenarioDetector):
         urgency_order = {"high": 0, "medium": 1, "low": 2}
         results.sort(key=lambda x: urgency_order.get(x.get("urgency", "medium"), 1))
         
-        return results
+        # 去重：相同内容只保留一条
+        seen = set()
+        unique_results = []
+        for r in results:
+            key = (r.get('content', '')[:50], r.get('type', ''))
+            if key not in seen:
+                seen.add(key)
+                unique_results.append(r)
+        
+        return unique_results
     
-    def _quick_llm_extract(self, messages: List[dict], group_name: str) -> List[dict]:
-        """快速 LLM 分析（处理少量消息）"""
-        if len(messages) < 3:
+    def _llm_extract_key_info(self, messages: List[dict], group_name: str, role_name: str = "我") -> List[dict]:
+        """
+        LLM 实时分析原始消息文本，识别预设场景类型
+        
+        识别的场景类型：
+        - announcement（公告）：官方通知、重要通知
+        - vote（投票）：需要投票决定的事项
+        - at_reminder（@提醒）：有人@你，需要回复
+        - ddl（截止日期）：有明确截止时间的事项
+        - request（请求）：有人请求你帮忙
+        """
+        if len(messages) < 1:
             return []
         
-        # 格式化消息
+        # 格式化原始消息
         lines = []
         for msg in messages:
             sender = msg.get("sender", "")
-            content = msg.get("content", "")[:100]  # 限制长度
-            lines.append(f"{sender}: {content}")
+            content = msg.get("content", "")
+            msg_type = msg.get("type", "normal")
+            time_str = msg.get("time", "")
+            
+            # 如果有预设 type，标记出来作为参考
+            type_hint = f"[{msg_type}]" if msg_type != "normal" else ""
+            lines.append(f"[{time_str}] {sender}: {type_hint}{content}")
         
         messages_text = "\n".join(lines)
         
+        prompt = f"""你是 QQ 消息分析助手。请分析以下 {group_name} 的聊天记录，识别需要用户关注的重要信息。
+
+当前用户是：{role_name}
+
+聊天记录：
+{messages_text}
+
+【分析任务】
+识别以下类型的消息：
+
+1. announcement（公告）- 官方通知、重要事项通知
+   例如：课程调整通知、活动通知、系统公告、会议通知
+
+2. vote（投票）- 需要投票或表态的事项
+   例如：团建地点投票、选择投票、意见征集
+
+3. at_reminder（@提醒）- 有人@了你，需要回复
+   例如：@你 记得回复、@你 帮个忙
+
+4. ddl（截止日期）- 有明确截止时间的事项
+   例如：截止日期、周报截止、作业截止
+
+5. request（请求）- 有人请求你帮忙或协作
+   例如：帮我看看、能不能、帮我一下
+
+【输出要求】
+- 严格返回 JSON 格式
+- 只返回识别到的重要信息，普通闲聊不返回
+- urgency: high(紧急，需要今天处理) / medium(一般，本周内处理) / low(不急，随时处理)
+- action_required: 建议用户采取的行动
+
+【输出格式】
+{{
+    "items": [
+        {{
+            "type": "announcement|vote|at_reminder|ddl|request",
+            "content": "消息内容的简洁概括（50字以内）",
+            "full_content": "原始完整内容",
+            "sender": "发送者",
+            "urgency": "high|medium|low",
+            "action_required": "查看/回复/投票/完成/忽略",
+            "reason": "为什么这条消息重要"
+        }}
+    ]
+}}
+
+如果没有发现重要信息，返回：{{"items": []}}"""
+
         try:
-            result = llm_service.extract_group_info(messages_text, group_name)
-            if result and "items" in result:
-                items = result["items"]
-                if isinstance(items, list) and len(items) > 0:
-                    print(f"[GroupMessageExtractor] LLM 分析到 {len(items)} 条关键信息")
-                    return items
+            result = llm_service._call_llm([
+                {"role": "user", "content": prompt}
+            ], temperature=0.3, max_tokens=1500)
+            
+            if result:
+                text = result.strip()
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0]
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0]
+                
+                parsed = json.loads(text)
+                if parsed and "items" in parsed:
+                    items = parsed["items"]
+                    if isinstance(items, list) and len(items) > 0:
+                        print(f"[GroupMessageExtractor] LLM 分析到 {len(items)} 条关键信息")
+                        return items
         except Exception as e:
             print(f"[GroupMessageExtractor] LLM 分析失败: {e}")
         
