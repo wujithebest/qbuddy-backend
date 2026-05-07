@@ -221,6 +221,62 @@ class LLMService:
         
         return "好的！"
     
+    def extract_group_info(self, messages_text: str, group_name: str = "群聊") -> dict:
+        """
+        从群消息中提取关键信息
+        
+        Args:
+            messages_text: 格式化后的消息文本
+            group_name: 群名称
+        
+        Returns:
+            {{"items": [{"type": "announcement|vote|at_reminder", "content": "...", "urgency": "high|medium|low", ...}]}}
+        """
+        prompt = f"""分析以下{group_name}的聊天记录，提取需要关注的关键信息。
+
+消息内容：
+{messages_text}
+
+【任务】
+请识别以下类型的关键信息：
+1. announcement（公告）- 官方通知、重要通知
+2. vote（投票）- 需要投票的事项
+3. at_reminder（@提醒）- 有人@你，需要回复
+
+【输出格式】严格返回JSON，不要其他内容：
+{{
+    "items": [
+        {{
+            "type": "announcement|vote|at_reminder",
+            "content": "消息内容摘要",
+            "urgency": "high|medium|low",
+            "sender": "发送者",
+            "reason": "为什么重要"
+        }}
+    ]
+}}
+
+如果没有发现重要信息，返回：{{"items": []}}"""
+
+        result = self._call_llm([
+            {"role": "user", "content": prompt}
+        ], temperature=0.3, max_tokens=1000)
+        
+        if result:
+            try:
+                text = result.strip()
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0]
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0]
+                
+                parsed = json.loads(text)
+                return parsed
+            except json.JSONDecodeError as e:
+                print(f"[LLM] extract_group_info JSON解析失败: {e}, 原始: {result[:200]}")
+        
+        return {"items": []}
+    
     # ============ 辅助方法 ============
     
     def _format_messages(self, messages: list) -> str:
