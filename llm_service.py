@@ -36,17 +36,12 @@ GREETING_TEMPLATES = {
 
 class LLMService:
     def __init__(self):
-        # 移除 http_proxy/https_proxy 环境变量避免冲突
-        env = os.environ.copy()
-        env.pop('http_proxy', None)
-        env.pop('https_proxy', None)
-        env.pop('HTTP_PROXY', None)
-        env.pop('HTTPS_PROXY', None)
+        # 获取 API Key（支持多种环境变量名）
+        api_key = os.environ.get('DEEPSEEK_API_KEY') or os.environ.get('OPENAI_API_KEY') or ''
         
         self.client = OpenAI(
-            api_key=os.environ.get('DEEPSEEK_API_KEY'),
-            base_url="https://api.deepseek.com",
-            http_client=None  # 避免代理问题
+            api_key=api_key,
+            base_url="https://api.deepseek.com"
         )
         self.model = "deepseek-v4-pro"
     
