@@ -75,6 +75,29 @@ def health_check():
     return jsonify({"status": "ok", "service": "qb-api"}), 200
 
 
+@app.route('/api/test-llm', methods=['GET'])
+@require_password
+def test_llm():
+    """测试 LLM API 是否正常工作"""
+    try:
+        test_result = llm_service._call_llm([
+            {"role": "user", "content": "你好，回复1+1=?"}
+        ], temperature=0.3, max_tokens=100)
+        
+        if test_result:
+            return success_response({
+                "success": True,
+                "model": llm_service.model,
+                "response": test_result
+            })
+        else:
+            return error_response("LLM 调用失败", 500)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return error_response(f"测试失败: {str(e)}", 500)
+
+
 @app.route('/api/auth/verify', methods=['POST'])
 def verify_password():
     """验证访问密码"""
@@ -629,7 +652,9 @@ def qbuddy_scan(role):
             
             # 使用 LLM 分析消息，构建图谱
             if all_messages:
+                print(f"[QBuddy] 开始LLM分析，共{len(all_messages)}条消息...")
                 llm_result = llm_service.analyze_messages_for_graph(all_messages, role_name)
+                print(f"[QBuddy] LLM分析完成，结果: {llm_result}")
                 
                 # 应用 LLM 结果到图谱
                 apply_result = graph_engine.apply_llm_result(llm_result)
@@ -641,6 +666,8 @@ def qbuddy_scan(role):
                 # 发送 LLM 分析摘要
                 if apply_result.get('summary'):
                     yield f"data: {json.dumps({'type': 'dialogue', 'text': apply_result['summary']})}\n\n"
+            else:
+                print("[QBuddy] 没有消息需要分析")
             
             # 更新温度
             graph_engine.update_temperatures()

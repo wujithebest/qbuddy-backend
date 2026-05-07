@@ -18,13 +18,15 @@ class LLMService:
             api_key=api_key,
             base_url="https://api.deepseek.com"
         )
-        self.model = "deepseek-v4-pro"
+        # DeepSeek 正确的模型名称
+        self.model = os.environ.get('DEEPSEEK_MODEL', 'deepseek-chat')
     
     def _call_llm(self, messages, temperature=0.3, max_tokens=4000):
         """
         调用DeepSeek API
         不设置超时限制，让LLM完整分析
         """
+        print(f"[LLM] 开始调用 API，消息数: {len(messages)}")
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -32,9 +34,14 @@ class LLMService:
                 temperature=temperature,
                 max_tokens=max_tokens
             )
-            return response.choices[0].message.content
+            result = response.choices[0].message.content
+            print(f"[LLM] API调用成功，返回长度: {len(result)} 字符")
+            print(f"[LLM] 返回内容预览: {result[:200]}...")
+            return result
         except Exception as e:
             print(f"[LLM] 调用失败: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def analyze_messages_for_graph(self, messages: list, role_name: str = "我") -> dict:
@@ -59,60 +66,32 @@ class LLMService:
         # 格式化消息
         messages_text = self._format_messages(messages)
         
-        prompt = f"""【任务】分析以下QQ群聊消息，构建社交关系图谱。
+        prompt = f"""【任务】分析群聊消息，提取需要关注的重要信息。
 
 当前用户：{role_name}
 
 消息内容：
 {messages_text}
 
-【分析要求】
-1. 识别群聊中的关键人物（频繁互动的人、群管理员、发起活动的人）
-2. 识别重要事件（DDL、投票、活动、打卡等）
-3. 识别人物之间的关系（同班同学、搭子、室友、群友等）
-4. 为每个实体打上标签，便于后续推送整合
+消息中已标注类型：[公告]、[投票]、[@提醒]、[DDL]等，请重点关注这些。
 
-【输出格式】严格返回JSON：
+【输出JSON】（严格返回，不要其他内容）：
 {{
-    "nodes_to_add": [
-        {{
-            "id": "person_1",           // 节点ID，唯一标识
-            "name": "小王",              // 节点名称
-            "type": "contact",           // contact(联系人) | event(事件)
-            "properties": {{
-                "identity": "同学/搭子/群友/老师等",
-                "tags": ["考研", "游戏"],  // 标签，用于推送整合
-                "personality": "性格描述",
-                "interests": ["游戏", "音乐"]
-            }},
-            "urgency": "high/medium/low",  // 紧急程度
-            "action_hint": "需要的行动"      // 如：回复、投票、完成DDL
-        }}
-    ],
-    "edges_to_add": [
-        {{
-            "source": "user",           // 源节点ID（user表示当前用户）
-            "target": "person_1",       // 目标节点ID
-            "relationship": "搭子/同学/群友",
-            "strength": 0.8,             // 关系强度 0-1
-            "interaction_type": "日常聊天/共同活动/搭子互动"
-        }}
-    ],
-    "tags": ["考研相关", "紧急DDL", "投票待处理"],  // 全局标签，用于后续推送整合
-    "summary": "本群有3个搭子，1个重要DDL需要处理"
+    "nodes_to_add": [],
+    "edges_to_add": [],
+    "tags": ["重要公告", "待投票", "DDL提醒"],
+    "summary": "2个重要公告，1个投票需要处理"
 }}
 
-【规则】
-1. 只识别重要人物和事件，忽略普通闲聊
-2. contact类型节点需要有明确的身份标识
-3. event类型节点需要有截止时间或明确的行动项
-4. tags用于后续推送整合，确保重要信息不遗漏
-5. 如果没有新增内容，返回空数组：{{"nodes_to_add": [], "edges_to_add": [], "tags": [], "summary": "无重要信息"}}
-6. 严格返回JSON，不要其他内容"""
+如果没重要信息：
+{{"nodes_to_add": [], "edges_to_add": [], "tags": [], "summary": "无重要信息"}}
 
+只返回JSON！"""
+
+        print(f"[LLM] 开始分析 {len(messages)} 条消息...")
         result = self._call_llm([
             {"role": "user", "content": prompt}
-        ], temperature=0.3)
+        ], temperature=0.3, max_tokens=2000)
         
         if result:
             try:
@@ -123,6 +102,7 @@ class LLMService:
                 elif "```" in text:
                     text = text.split("```")[1].split("```")[0]
                 
+                print(f"[LLM] 解析JSON: {text[:200]}...")
                 parsed = json.loads(text)
                 return self._validate_graph_result(parsed)
             except json.JSONDecodeError as e:
