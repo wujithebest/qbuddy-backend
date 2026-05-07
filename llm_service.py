@@ -81,38 +81,57 @@ class LLMService:
         
         return result[0]
     
-    def extract_group_info(self, messages_text: str) -> dict:
+    def extract_group_info(self, messages_text: str, group_name: str = "") -> dict:
         """
         从群消息中提取关键信息（DDL、投票、@提醒等）
         返回结构化JSON
         """
         prompt = f"""从以下群聊消息中提取关键信息，识别DDL、投票、@提醒等重要内容。
 
+群名称：{group_name}
 消息内容：
 {messages_text}
 
 请以JSON格式返回，字段说明：
 - type: 类型 (deadline/vote/at_reminder/announcement/normal)
-- content: 内容摘要
-- deadline: 截止时间（如果有）
+- content: 内容摘要（不超过50字）
+- sender: 发送者
+- deadline: 截止时间（如果有，格式如"2026-05-06 12:00"）
 - urgency: 紧急程度 (high/medium/low)
-- source_group: 来源群名
 - action_required: 需要采取的行动
+- options: 投票选项（如有）
+- deadline_days: 距离截止还有几天
 
-只返回关键信息项，不要返回普通聊天内容。如果有多条关键信息，以数组形式返回。"""
+只返回关键信息项，不要返回普通聊天内容。如果有多条关键信息，以数组形式返回。
+返回格式示例：
+{{"items": [{{"type": "deadline", "content": "...", "urgency": "high", ...}}]}}"""
 
         result = self._call_llm([
             {"role": "system", "content": "你是一个信息提取助手，擅长从聊天记录中提取关键任务和提醒。"},
             {"role": "user", "content": prompt}
-        ])
+        ], timeout=30)
         
         if result:
             try:
                 # 尝试解析JSON
-                return json.loads(result)
+                parsed = json.loads(result)
+                # 确保返回格式一致
+                if isinstance(parsed, dict) and "items" in parsed:
+                    return parsed
+                elif isinstance(parsed, list):
+                    return {"items": parsed}
+                else:
+                    return {"items": [parsed]}
             except:
-                # 如果不是有效JSON，返回提示
-                return {"error": "提取失败", "raw": result}
+                # 如果不是有效JSON，尝试修复常见问题
+                try:
+                    # 尝试添加外层包裹
+                    fixed = '{"items": ' + result + '}'
+                    parsed = json.loads(fixed)
+                    return parsed
+                except:
+                    # 如果还是失败，返回提示
+                    return {"error": "提取失败", "raw": result[:200]}
         
         # 降级处理：使用关键词匹配
         return self._fallback_extract(messages_text)

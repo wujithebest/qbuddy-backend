@@ -32,39 +32,101 @@ class ScenarioDetector:
 
 
 class GroupMessageExtractor(ScenarioDetector):
-    """场景1：群消息关键信息提取"""
+    """场景1：群消息关键信息提取（支持 LLM 分析原始消息）"""
     
     def detect(self) -> List[dict]:
-        """从群聊中提取DDL、投票、@提醒"""
+        """
+        从群聊中提取 DDL、投票、@提醒
+        优先使用 LLM 分析原始消息，fallback 到预设 type 字段
+        """
         results = []
         
         for group in self.groups.get("groups", []):
-            for msg in group.get("recent_messages", []):
-                # 过滤出重要消息类型
-                msg_type = msg.get("type", "normal")
-                
-                if msg_type in ["announcement", "vote", "at_reminder"]:
-                    item = {
-                        "id": msg.get("id"),
-                        "type": msg_type,
-                        "content": msg.get("content"),
-                        "sender": msg.get("sender"),
-                        "time": msg.get("time"),
-                        "source_group": group.get("name"),
-                        "source_group_id": group.get("id"),
-                        "urgency": msg.get("urgency", "medium"),
-                        "deadline": msg.get("deadline"),
-                        "options": msg.get("options"),
-                        "scenario": "group_message_extraction",
-                        "action_required": self._get_action_hint(msg_type)
-                    }
+            group_name = group.get("name", "")
+            messages = group.get("recent_messages", [])
+            
+            # 方法1：使用 LLM 分析原始消息
+            llm_results = self._extract_with_llm(messages, group_name)
+            
+            if llm_results:
+                # 使用 LLM 分析结果
+                for item in llm_results:
+                    item["source_group"] = group_name
+                    item["source_group_id"] = group.get("id")
+                    item["scenario"] = "group_message_extraction"
+                    item["action_required"] = self._get_action_hint(item.get("type", "normal"))
                     results.append(item)
+            else:
+                # 方法2：Fallback 到预设 type 字段
+                for msg in messages:
+                    msg_type = msg.get("type", "normal")
+                    
+                    if msg_type in ["announcement", "vote", "at_reminder"]:
+                        item = {
+                            "id": msg.get("id"),
+                            "type": msg_type,
+                            "content": msg.get("content"),
+                            "sender": msg.get("sender"),
+                            "time": msg.get("time"),
+                            "source_group": group_name,
+                            "source_group_id": group.get("id"),
+                            "urgency": msg.get("urgency", "medium"),
+                            "deadline": msg.get("deadline"),
+                            "options": msg.get("options"),
+                            "scenario": "group_message_extraction",
+                            "action_required": self._get_action_hint(msg_type)
+                        }
+                        results.append(item)
         
         # 按紧迫程度排序
         urgency_order = {"high": 0, "medium": 1, "low": 2}
         results.sort(key=lambda x: urgency_order.get(x.get("urgency", "medium"), 1))
         
         return results
+    
+    def _extract_with_llm(self, messages: List[dict], group_name: str) -> List[dict]:
+        """
+        使用 LLM 从原始消息中提取关键信息
+        将消息格式化为文本，发送给 LLM 分析
+        """
+        if not messages:
+            return []
+        
+        # 将消息格式化为文本
+        messages_text = self._format_messages_for_llm(messages)
+        
+        # 调用 LLM 分析
+        try:
+            llm_result = llm_service.extract_group_info(messages_text, group_name)
+            
+            if llm_result and "items" in llm_result:
+                items = llm_result["items"]
+                if isinstance(items, list) and len(items) > 0:
+                    print(f"[GroupMessageExtractor] LLM 分析到 {len(items)} 条关键信息")
+                    return items
+        except Exception as e:
+            print(f"[GroupMessageExtractor] LLM 分析失败: {e}")
+        
+        return []
+    
+    def _format_messages_for_llm(self, messages: List[dict]) -> str:
+        """
+        将消息列表格式化为 LLM 可读的文本
+        保留发送者、内容和时间信息
+        """
+        lines = []
+        for msg in messages:
+            sender = msg.get("sender", "未知")
+            content = msg.get("content", "")
+            time_str = msg.get("time", "")
+            
+            # 简化时间格式
+            if "T" in time_str:
+                time_str = time_str.split("T")[1][:5] if "T" in time_str else time_str
+            
+            lines.append(f"[{time_str}] {sender}: {content}")
+        
+        return "\n".join(lines)
     
     def detect_with_llm(self, messages_text: str, group_name: str) -> dict:
         """使用LLM深度提取"""
