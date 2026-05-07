@@ -1,36 +1,13 @@
 """
 DeepSeek API封装服务
-提供LLM调用的统一接口，支持降级处理
+提供LLM调用的统一接口，用于图谱构建和消息分析
 """
 import os
 import json
-import threading
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# 全局超时时间（秒）- 缩短超时，加快响应
-LLM_TIMEOUT = 15
-
-# 预设模板（API调用失败时降级使用）
-BLESSING_TEMPLATES = {
-    "闺蜜": "生日快乐呀宝！🎉 新的一岁继续一起疯一起闹~",
-    "搭子": "生快！🎂 期待更多精彩瞬间，先收下这份祝福！",
-    "同学": "生日快乐！愿学业顺利，天天开心！🎈",
-    "家人": "生日快乐！🥳 身体健康，万事如意！",
-    "好友": "生日快乐！🎁 友谊长存！",
-    "同事": "生日快乐！🎂 职场顺利~",
-    "画友": "生日快乐！🎨 创作顺利~",
-    "default": "生日快乐！🎉 天天开心~"
-}
-
-GREETING_TEMPLATES = {
-    "考研结束": "听说考研出分了！最近怎么样？",
-    "降温搭子": "最近忙啥呢？好久没一起了~",
-    "沉寂好友": "突然想起你啦！最近怎么样？",
-    "default": "嗨！好久不见~"
-}
 
 
 class LLMService:
@@ -43,129 +20,192 @@ class LLMService:
         )
         self.model = "deepseek-v4-pro"
     
-    def _call_llm(self, messages, temperature=0.7, timeout=None):
-        """调用DeepSeek API，带超时处理"""
-        if timeout is None:
-            timeout = LLM_TIMEOUT
-        
-        result = [None]
-        error = [None]
-        
-        def _call():
-            try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    temperature=temperature,
-                    stream=False
-                )
-                result[0] = response.choices[0].message.content
-            except Exception as e:
-                error[0] = e
-        
-        thread = threading.Thread(target=_call)
-        thread.daemon = True
-        thread.start()
-        thread.join(timeout)
-        
-        if thread.is_alive():
-            print(f"[LLM] 调用超时（{timeout}秒）")
+    def _call_llm(self, messages, temperature=0.3, max_tokens=4000):
+        """
+        调用DeepSeek API
+        不设置超时限制，让LLM完整分析
+        """
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"[LLM] 调用失败: {e}")
             return None
-        
-        if error[0]:
-            print(f"[LLM] 调用失败: {error[0]}")
-            return None
-        
-        return result[0]
     
-    def extract_group_info(self, messages_text: str, group_name: str = "") -> dict:
+    def analyze_messages_for_graph(self, messages: list, role_name: str = "我") -> dict:
         """
-        从群消息中提取关键信息（DDL、投票、@提醒等）
-        返回结构化JSON，格式简单明确
+        分析消息序列，构建或更新图谱
+        返回图谱操作指令：add_node / update_node / delete_node
+        
+        Args:
+            messages: 消息列表，每条包含 sender, content, time
+            role_name: 当前用户名称，用于识别哪些消息是发给自己的
+        
+        Returns:
+            {
+                "nodes_to_add": [...],      # 需要新增的节点
+                "nodes_to_update": [...],   # 需要更新的节点
+                "nodes_to_delete": [...],   # 需要删除的节点
+                "edges_to_add": [...],       # 需要新增的边
+                "tags": [...],               # 标签，用于后续推送整合
+                "summary": "分析摘要"
+            }
         """
-        prompt = f"""【任务】从群聊消息中提取需要关注的事项。
+        # 格式化消息
+        messages_text = self._format_messages(messages)
+        
+        prompt = f"""【任务】分析以下QQ群聊消息，构建社交关系图谱。
 
-群名称：{group_name}
+当前用户：{role_name}
+
 消息内容：
 {messages_text}
 
-【输出格式】只返回JSON，不要其他内容：
-{{"items": [
-  {{"type": "ddl", "content": "具体任务内容", "deadline": "截止时间", "urgency": "high/medium/low", "action": "需要的行动"}},
-  {{"type": "vote", "content": "投票内容", "options": ["选项1", "选项2"], "urgency": "medium"}},
-  {{"type": "at_reminder", "content": "@你的内容", "sender": "发送者", "urgency": "high"}},
-  {{"type": "announcement", "content": "公告内容", "urgency": "medium"}}
-]}}
+【分析要求】
+1. 识别群聊中的关键人物（频繁互动的人、群管理员、发起活动的人）
+2. 识别重要事件（DDL、投票、活动、打卡等）
+3. 识别人物之间的关系（同班同学、搭子、室友、群友等）
+4. 为每个实体打上标签，便于后续推送整合
+
+【输出格式】严格返回JSON：
+{{
+    "nodes_to_add": [
+        {{
+            "id": "person_1",           // 节点ID，唯一标识
+            "name": "小王",              // 节点名称
+            "type": "contact",           // contact(联系人) | event(事件)
+            "properties": {{
+                "identity": "同学/搭子/群友/老师等",
+                "tags": ["考研", "游戏"],  // 标签，用于推送整合
+                "personality": "性格描述",
+                "interests": ["游戏", "音乐"]
+            }},
+            "urgency": "high/medium/low",  // 紧急程度
+            "action_hint": "需要的行动"      // 如：回复、投票、完成DDL
+        }}
+    ],
+    "edges_to_add": [
+        {{
+            "source": "user",           // 源节点ID（user表示当前用户）
+            "target": "person_1",       // 目标节点ID
+            "relationship": "搭子/同学/群友",
+            "strength": 0.8,             // 关系强度 0-1
+            "interaction_type": "日常聊天/共同活动/搭子互动"
+        }}
+    ],
+    "tags": ["考研相关", "紧急DDL", "投票待处理"],  // 全局标签，用于后续推送整合
+    "summary": "本群有3个搭子，1个重要DDL需要处理"
+}}
 
 【规则】
-1. 只提取重要事项，忽略普通聊天
-2. ddl类型：截止日期相关的任务
-3. vote类型：需要投票的选择
-4. at_reminder类型：有人@你或提到重要提醒
-5. announcement类型：官方公告通知
-6. 如果没有重要事项，返回空数组: {{"items": []}}
-7. urgency: 高(high)=今天内要处理，中(medium)=近期要处理，低(low)=有空再看"""
+1. 只识别重要人物和事件，忽略普通闲聊
+2. contact类型节点需要有明确的身份标识
+3. event类型节点需要有截止时间或明确的行动项
+4. tags用于后续推送整合，确保重要信息不遗漏
+5. 如果没有新增内容，返回空数组：{{"nodes_to_add": [], "edges_to_add": [], "tags": [], "summary": "无重要信息"}}
+6. 严格返回JSON，不要其他内容"""
 
         result = self._call_llm([
             {"role": "user", "content": prompt}
-        ], temperature=0.3, timeout=20)
+        ], temperature=0.3)
         
         if result:
             try:
-                # 提取JSON（处理可能的markdown代码块）
+                # 提取JSON
                 text = result.strip()
-                if text.startswith("```"):
-                    # 去掉markdown代码块
-                    lines = text.split('\n')
-                    text = '\n'.join(lines[1:-1] if lines[-1] == '```' else lines[1:])
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0]
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0]
                 
                 parsed = json.loads(text)
-                if isinstance(parsed, dict) and "items" in parsed:
-                    return parsed
-                elif isinstance(parsed, list):
-                    return {"items": parsed}
-                else:
-                    return {"items": [parsed]}
+                return self._validate_graph_result(parsed)
             except json.JSONDecodeError as e:
-                print(f"[LLM] JSON解析失败: {e}, 原始结果: {result[:200]}")
+                print(f"[LLM] JSON解析失败: {e}")
+                print(f"[LLM] 原始结果: {result[:500]}")
         
-        # 快速降级：关键词匹配
-        return self._fallback_extract(messages_text)
+        return self._empty_result()
     
-    def _fallback_extract(self, text: str) -> dict:
-        """降级处理：使用规则快速提取"""
-        results = []
-        lines = text.split('\n')
+    def analyze_new_message(self, message: dict, current_graph: dict = None) -> dict:
+        """
+        分析单条新消息，判断是否需要更新图谱
         
-        for line in lines:
-            line_lower = line.lower()
-            if any(kw in line_lower for kw in ['ddl', '截止', 'deadline', '前提交', '明天', '今天', '今晚']):
-                results.append({
-                    "type": "ddl",
-                    "content": line.strip()[:100],
-                    "urgency": "high",
-                    "action": "按时完成"
-                })
-            elif any(kw in line_lower for kw in ['投票', 'vote', '扣1', '扣2', '选项']):
-                results.append({
-                    "type": "vote",
-                    "content": line.strip()[:80],
-                    "urgency": "medium",
-                    "action": "请投票"
-                })
-            elif '@' in line and any(kw in line_lower for kw in ['重要', '提醒', '通知']):
-                results.append({
-                    "type": "at_reminder",
-                    "content": line.strip()[:80],
-                    "urgency": "high",
-                    "action": "查看并回复"
-                })
+        Args:
+            message: 单条消息，包含 sender, content, time
+            current_graph: 当前图谱数据（可选）
         
-        return {"items": results[:5]}  # 最多返回5条
+        Returns:
+            {{
+                "action": "add_node|update_node|delete_node|none",
+                "node": {...},     // 如果action不是none
+                "reason": "原因说明"
+            }}
+        """
+        sender = message.get("sender", "")
+        content = message.get("content", "")
+        time = message.get("time", "")
+        
+        prompt = f"""【任务】分析一条新消息，判断是否需要在图谱中添加/更新/删除节点。
+
+新消息：
+[{time}] {sender}: {content}
+
+当前图谱概况：
+{self._format_graph_summary(current_graph)}
+
+【分析要求】
+1. 如果消息包含重要信息（DDL、投票、@提醒、活动邀请），可能需要添加event节点
+2. 如果消息来自新认识的人，可能需要添加contact节点
+3. 如果消息表示取消/结束某事项，需要标记删除
+4. 结合当前图谱判断，避免重复添加
+
+【输出格式】严格返回JSON：
+{{
+    "action": "add_node|update_node|delete_node|none",
+    "node": {{
+        "id": "可选，指定节点ID",
+        "name": "节点名称",
+        "type": "contact|event",
+        "properties": {{}},
+        "urgency": "high/medium/low",
+        "action_hint": "需要的行动"
+    }},
+    "edge": {{
+        "target": "关联的节点ID",
+        "relationship": "关系类型",
+        "strength": 0.5
+    }},
+    "reason": "判断原因",
+    "tags": ["相关标签"]  // 用于后续推送整合
+}}
+
+如果没有重要操作，返回：{{"action": "none", "reason": "普通闲聊，无需处理"}}"""
+
+        result = self._call_llm([
+            {"role": "user", "content": prompt}
+        ], temperature=0.3)
+        
+        if result:
+            try:
+                text = result.strip()
+                if "```json" in text:
+                    text = text.split("```json")[1].split("```")[0]
+                elif "```" in text:
+                    text = text.split("```")[1].split("```")[0]
+                
+                return json.loads(text)
+            except json.JSONDecodeError:
+                return {"action": "none", "reason": "解析失败"}
+        
+        return {"action": "none", "reason": "LLM调用失败"}
     
     def generate_blessing(self, contact_name: str, relationship: str, 
-                         chat_history: str, birthday_type: str = "birthday",
-                         user_tone: str = "") -> str:
+                         chat_history: str, birthday_type: str = "birthday") -> str:
         """生成个性化祝福文案"""
         prompt = f"""为好友 {contact_name} 写一条生日祝福。
 
@@ -178,12 +218,12 @@ class LLMService:
 
         result = self._call_llm([
             {"role": "user", "content": prompt}
-        ], timeout=12)
+        ], temperature=0.8)
         
         if result:
             return result.strip()
         
-        return f"生日快乐呀{contact_name}！🎂 愿你天天开心~"
+        return f"生日快乐呀{contact_name}！🎂"
     
     def generate_greeting(self, contact_name: str, relationship: str,
                          topic_context: str, event_signal: str = "") -> str:
@@ -200,16 +240,16 @@ class LLMService:
 
         result = self._call_llm([
             {"role": "user", "content": prompt}
-        ], timeout=10)
+        ], temperature=0.8)
         
         if result:
             return result.strip()
         
-        return f"嘿~好久不见，最近怎么样？"
-
+        return f"嘿~好久不见~"
+    
     def generate_reply(self, contact_name: str, relationship: str, 
-                       message: str, chat_history: list = None) -> str:
-        """生成上下文感知的回复"""
+                       message: str) -> str:
+        """生成回复"""
         prompt = f"""你是一个QQ用户，正在和朋友聊天。
 
 对方：{contact_name}
@@ -222,15 +262,77 @@ class LLMService:
 
         result = self._call_llm([
             {"role": "user", "content": prompt}
-        ], temperature=0.8, timeout=8)
+        ], temperature=0.8)
         
         if result:
             return result.strip()
         
-        # 快速模板回复
-        if '?' in message or '？' in message:
-            return "让我想想~"
         return "好的！"
+    
+    # ============ 辅助方法 ============
+    
+    def _format_messages(self, messages: list) -> str:
+        """格式化消息列表"""
+        lines = []
+        for msg in messages:
+            sender = msg.get("sender", "")
+            content = msg.get("content", "")
+            time = msg.get("time", "")
+            msg_type = msg.get("type", "normal")
+            
+            # 标记重要消息类型
+            type_marker = ""
+            if msg_type == "announcement":
+                type_marker = "[公告]"
+            elif msg_type == "vote":
+                type_marker = "[投票]"
+            elif msg_type == "at_reminder":
+                type_marker = "[@提醒]"
+            elif msg_type == "ddl":
+                type_marker = "[DDL]"
+            
+            lines.append(f"[{time}] {sender}: {type_marker}{content}")
+        
+        return "\n".join(lines)
+    
+    def _format_graph_summary(self, graph: dict) -> str:
+        """格式化图谱摘要"""
+        if not graph:
+            return "图谱为空"
+        
+        nodes = graph.get("nodes", [])
+        edges = graph.get("edges", [])
+        
+        node_names = [n.get("name", "") for n in nodes[:10]]
+        return f"已有{len(nodes)}个节点，{len(edges)}条边。包括：{', '.join(node_names)}"
+    
+    def _validate_graph_result(self, result: dict) -> dict:
+        """验证并补全图谱结果"""
+        default_result = self._empty_result()
+        
+        # 确保所有必要字段存在
+        for key in ["nodes_to_add", "edges_to_add", "tags"]:
+            if key not in result:
+                result[key] = default_result.get(key, [])
+        
+        for key in ["nodes_to_update", "nodes_to_delete"]:
+            if key not in result:
+                result[key] = default_result.get(key, [])
+        
+        result["summary"] = result.get("summary", "")
+        
+        return result
+    
+    def _empty_result(self) -> dict:
+        """返回空结果"""
+        return {
+            "nodes_to_add": [],
+            "nodes_to_update": [],
+            "nodes_to_delete": [],
+            "edges_to_add": [],
+            "tags": [],
+            "summary": "无重要信息"
+        }
 
 
 # 全局单例

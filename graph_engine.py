@@ -294,3 +294,236 @@ class GraphEngine:
             return "冷淡 ❄️"
         else:
             return "冰冷 🧊"
+    
+    # ============ LLM 增量更新方法 ============
+    
+    def add_node_from_llm(self, node_data: dict) -> dict:
+        """
+        从 LLM 分析结果添加新节点
+        
+        Args:
+            node_data: {
+                "id": "person_1",
+                "name": "小王",
+                "type": "contact|event",
+                "properties": {...},
+                "urgency": "high/medium/low",
+                "action_hint": "需要的行动"
+            }
+        
+        Returns:
+            添加成功返回节点信息，失败返回错误
+        """
+        try:
+            node_id = node_data.get("id", f"llm_node_{len(self.contacts)}")
+            node_type = node_data.get("type", "contact")
+            
+            if node_type == "contact":
+                # 添加联系人节点
+                properties = node_data.get("properties", {})
+                
+                contact = Contact(
+                    id=node_id,
+                    name=node_data.get("name", "未知"),
+                    relationship_type=properties.get("identity", "群友"),
+                    tags=properties.get("tags", []),
+                    last_interaction_time=self.NOW.isoformat(),
+                    baseline_interval=72.0,  # 默认3天
+                    birthday=None,
+                    chat_history_summary="",
+                    interest_tags=properties.get("interests", []),
+                    temperature=0.7  # 新节点默认温度较高
+                )
+                self.contacts[node_id] = contact
+                
+                # 自动添加与用户的边
+                edge_key = f"user->{node_id}"
+                self.edges[edge_key] = Edge(
+                    source="user",
+                    target=node_id,
+                    weight=0.6,
+                    temperature=0.7,
+                    edge_type=properties.get("identity", "群友")
+                )
+                
+                return {
+                    "success": True,
+                    "node_id": node_id,
+                    "type": "contact",
+                    "urgency": node_data.get("urgency", "medium")
+                }
+            
+            elif node_type == "event":
+                # 添加事件节点（存储为特殊联系人或独立存储）
+                # 这里简化处理，将事件节点添加到 contacts 中，标记为 event 类型
+                event_contact = Contact(
+                    id=node_id,
+                    name=node_data.get("name", "事件"),
+                    relationship_type="event",
+                    tags=node_data.get("properties", {}).get("tags", []),
+                    last_interaction_time=self.NOW.isoformat(),
+                    baseline_interval=24.0,  # 事件默认1天有效期
+                    birthday=None,
+                    chat_history_summary=node_data.get("action_hint", ""),
+                    interest_tags=[],
+                    temperature=0.9  # 新事件高优先级
+                )
+                self.contacts[node_id] = event_contact
+                
+                return {
+                    "success": True,
+                    "node_id": node_id,
+                    "type": "event",
+                    "urgency": node_data.get("urgency", "high")
+                }
+            
+            return {"success": False, "error": "未知节点类型"}
+        
+        except Exception as e:
+            print(f"[GraphEngine] 添加节点失败: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def update_node_from_llm(self, node_data: dict) -> dict:
+        """
+        从 LLM 分析结果更新现有节点
+        """
+        node_id = node_data.get("id")
+        if not node_id or node_id not in self.contacts:
+            return {"success": False, "error": "节点不存在"}
+        
+        try:
+            contact = self.contacts[node_id]
+            
+            # 更新属性
+            properties = node_data.get("properties", {})
+            if "identity" in properties:
+                contact.relationship_type = properties["identity"]
+            if "tags" in properties:
+                contact.tags = properties["tags"]
+            if "personality" in properties:
+                contact.chat_history_summary = properties["personality"]
+            if "interests" in properties:
+                contact.interest_tags = properties["interests"]
+            
+            return {
+                "success": True,
+                "node_id": node_id,
+                "type": contact.relationship_type
+            }
+        
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def delete_node(self, node_id: str) -> dict:
+        """删除节点"""
+        if node_id not in self.contacts:
+            return {"success": False, "error": "节点不存在"}
+        
+        try:
+            # 删除节点
+            del self.contacts[node_id]
+            
+            # 删除相关边
+            edges_to_delete = [k for k in self.edges.keys() 
+                             if node_id in k]
+            for key in edges_to_delete:
+                del self.edges[key]
+            
+            return {"success": True, "node_id": node_id}
+        
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def add_edge_from_llm(self, edge_data: dict) -> dict:
+        """
+        从 LLM 分析结果添加边
+        """
+        try:
+            source = edge_data.get("source", "user")
+            target = edge_data.get("target")
+            
+            if not target:
+                return {"success": False, "error": "缺少目标节点"}
+            
+            edge_key = f"{source}->{target}"
+            
+            if edge_key in self.edges:
+                # 边已存在，更新权重
+                self.edges[edge_key].weight = edge_data.get("strength", 0.5)
+                return {"success": True, "edge_key": edge_key, "action": "updated"}
+            
+            # 创建新边
+            self.edges[edge_key] = Edge(
+                source=source,
+                target=target,
+                weight=edge_data.get("strength", 0.5),
+                temperature=edge_data.get("strength", 0.5),
+                edge_type=edge_data.get("relationship", "群友")
+            )
+            
+            return {"success": True, "edge_key": edge_key, "action": "created"}
+        
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+    
+    def apply_llm_result(self, llm_result: dict) -> dict:
+        """
+        应用完整的 LLM 分析结果到图谱
+        
+        Args:
+            llm_result: {
+                "nodes_to_add": [...],
+                "nodes_to_update": [...],
+                "nodes_to_delete": [...],
+                "edges_to_add": [...],
+                "tags": [...],
+                "summary": "..."
+            }
+        
+        Returns:
+            应用结果统计
+        """
+        result = {
+            "nodes_added": 0,
+            "nodes_updated": 0,
+            "nodes_deleted": 0,
+            "edges_added": 0,
+            "tags": llm_result.get("tags", []),
+            "summary": llm_result.get("summary", ""),
+            "alerts": []  # 需要推送的提醒
+        }
+        
+        # 添加节点
+        for node_data in llm_result.get("nodes_to_add", []):
+            add_result = self.add_node_from_llm(node_data)
+            if add_result.get("success"):
+                result["nodes_added"] += 1
+                # 如果是高优先级，添加提醒
+                if add_result.get("urgency") == "high":
+                    result["alerts"].append({
+                        "type": "new_node",
+                        "node": node_data,
+                        "action": add_result
+                    })
+        
+        # 更新节点
+        for node_data in llm_result.get("nodes_to_update", []):
+            update_result = self.update_node_from_llm(node_data)
+            if update_result.get("success"):
+                result["nodes_updated"] += 1
+        
+        # 删除节点
+        for node_data in llm_result.get("nodes_to_delete", []):
+            node_id = node_data.get("id")
+            if node_id:
+                delete_result = self.delete_node(node_id)
+                if delete_result.get("success"):
+                    result["nodes_deleted"] += 1
+        
+        # 添加边
+        for edge_data in llm_result.get("edges_to_add", []):
+            edge_result = self.add_edge_from_llm(edge_data)
+            if edge_result.get("success"):
+                result["edges_added"] += 1
+        
+        return result

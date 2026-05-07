@@ -585,37 +585,72 @@ def list_profiles():
 def qbuddy_scan(role):
     """
     SSE端点：实时扫描并流式返回结果
-    改为对话式推送：先推送对话消息，再推送卡片
+    流程：
+    1. 加载历史数据
+    2. 使用 LLM 分析群消息，构建/更新图谱
+    3. 运行场景检测器，生成推送卡片
     """
     
     def generate():
         try:
-            # 耗时统计
-            graph_start = time.time()
+            # Step 1: 打招呼
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'init', 'message': '哈咯~让我看看你的消息~'})}\n\n"
             
-            # Step 1: 主动打招呼
-            greetings = [
-                "哈咯~让我看看你的消息~",
-                "正在分析你的社交动态...",
-                "让我帮你梳理一下最近的重要事项~"
-            ]
-            yield f"data: {json.dumps({'type': 'progress', 'step': 'init', 'message': random.choice(greetings)})}\n\n"
-            time.sleep(0.5)
+            # 加载用户profile
+            profile = {}
+            role_name = "我"
+            try:
+                with open(f"{DATA_PATH}/{role}/profile.json", "r", encoding="utf-8") as f:
+                    profile = json.load(f)
+                    role_name = profile.get("name", "我")
+            except:
+                pass
             
-            # 加载数据、构建图谱
+            # Step 2: 加载数据
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'loading', 'message': '正在加载数据...'})}\n\n"
+            
             graph_engine = GraphEngine()
             graph_engine.load_data(role, DATA_PATH)
+            
+            # Step 3: 使用 LLM 分析所有群消息，构建图谱
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'llm_analyze', 'message': '正在用 AI 分析群消息，构建关系图谱...'})}\n\n"
+            
+            # 收集所有群消息
+            all_messages = []
+            try:
+                with open(f"{DATA_PATH}/{role}/groups.json", "r", encoding="utf-8") as f:
+                    groups_data = json.load(f)
+                    for group in groups_data.get("groups", []):
+                        messages = group.get("recent_messages", [])
+                        if messages:
+                            all_messages.extend(messages)
+            except Exception as e:
+                print(f"[QBuddy] 加载群消息失败: {e}")
+            
+            # 使用 LLM 分析消息，构建图谱
+            if all_messages:
+                llm_result = llm_service.analyze_messages_for_graph(all_messages, role_name)
+                
+                # 应用 LLM 结果到图谱
+                apply_result = graph_engine.apply_llm_result(llm_result)
+                
+                print(f"[QBuddy] LLM 分析完成: 添加{apply_result['nodes_added']}个节点, "
+                      f"更新{apply_result['nodes_updated']}个节点, "
+                      f"添加{apply_result['edges_added']}条边")
+                
+                # 发送 LLM 分析摘要
+                if apply_result.get('summary'):
+                    yield f"data: {json.dumps({'type': 'dialogue', 'text': apply_result['summary']})}\n\n"
+            
+            # 更新温度
             graph_engine.update_temperatures()
             
-            graph_end = time.time()
-            graph_time = graph_end - graph_start
-            
+            # 获取图谱数据
             graph_data = graph_engine.get_graph_data()
             
             yield f"data: {json.dumps({'type': 'progress', 'step': 'graph', 'message': '关系图谱构建完成~', 'graph_data': graph_data})}\n\n"
-            time.sleep(0.8)
             
-            # Step 2: 逐个运行场景检测器
+            # Step 4: 运行场景检测器
             detector_manager = ScenarioDetectorManager(graph_engine)
             detector_manager.load_data(role, DATA_PATH)
             
