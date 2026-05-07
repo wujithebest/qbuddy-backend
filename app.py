@@ -642,10 +642,10 @@ def qbuddy_scan(role):
             graph_engine = GraphEngine()
             graph_engine.load_data(role, DATA_PATH)
             
-            # Step 3: LLM分析消息
-            yield f"data: {json.dumps({'type': 'progress', 'step': 'llm_analyze', 'message': f'正在用 AI 分析群消息，构建关系图谱...(预计30-60秒)'})}\n\n"
+            # Step 3: 加载消息数据（跳过LLM，直接使用预设数据）
+            yield f"data: {json.dumps({'type': 'progress', 'step': 'llm_analyze', 'message': '正在加载群消息数据...'})}\n\n"
             
-            # 收集所有群消息
+            # 收集所有群消息用于后续检测
             all_messages = []
             try:
                 with open(f"{DATA_PATH}/{role}/groups.json", "r", encoding="utf-8") as f:
@@ -654,31 +654,11 @@ def qbuddy_scan(role):
                         messages = group.get("recent_messages", [])
                         if messages:
                             all_messages.extend(messages)
+                    # 发送加载完成消息
+                    yield f"data: {json.dumps({'type': 'dialogue', 'text': f'找到 {len(all_messages)} 条群消息'})}\n\n"
             except Exception as e:
                 print(f"[QBuddy] 加载群消息失败: {e}", flush=True)
-            
-            llm_result = {"nodes_to_add": [], "nodes_to_update": [], "nodes_to_delete": [], "edges_to_add": [], "tags": [], "summary": ""}
-            llm_time = 0
-            
-            if all_messages:
-                print(f"[QBuddy] 开始LLM分析，共{len(all_messages)}条消息...", flush=True)
-                sys.stdout.flush()
-                
-                llm_start = time_module.time()
-                llm_result = llm_service.analyze_messages_for_graph(all_messages, role_name)
-                llm_time = time_module.time() - llm_start
-                
-                print(f"[QBuddy] LLM分析完成，耗时{llm_time:.2f}秒，结果: {llm_result}", flush=True)
-                sys.stdout.flush()
-                
-                # 应用 LLM 结果到图谱
-                apply_result = graph_engine.apply_llm_result(llm_result)
-                print(f"[QBuddy] 应用结果: {apply_result}", flush=True)
-                sys.stdout.flush()
-                
-                # 发送 LLM 分析摘要
-                if apply_result.get('summary'):
-                    yield f"data: {json.dumps({'type': 'dialogue', 'text': apply_result['summary']})}\n\n"
+                yield f"data: {json.dumps({'type': 'dialogue', 'text': '加载消息数据失败'})}\n\n"
             
             # 更新温度
             graph_engine.update_temperatures()
