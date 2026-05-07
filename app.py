@@ -625,6 +625,7 @@ def qbuddy_scan(role):
             
             # Step 1: 打招呼
             yield f"data: {json.dumps({'type': 'progress', 'step': 'init', 'message': '哈咯~让我看看你的消息~'})}\n\n"
+            time.sleep(0.1)  # 短暂延迟，让用户看到初始消息
             
             # 加载用户profile
             profile = {}
@@ -638,12 +639,14 @@ def qbuddy_scan(role):
             
             # Step 2: 加载数据
             yield f"data: {json.dumps({'type': 'progress', 'step': 'loading', 'message': '正在加载数据...'})}\n\n"
+            time.sleep(0.08)  # 短暂延迟
             
             graph_engine = GraphEngine()
             graph_engine.load_data(role, DATA_PATH)
             
             # Step 3: 加载消息数据（跳过LLM，直接使用预设数据）
             yield f"data: {json.dumps({'type': 'progress', 'step': 'llm_analyze', 'message': '正在加载群消息数据...'})}\n\n"
+            time.sleep(0.12)  # 短暂延迟
             
             # 收集所有群消息用于后续检测
             all_messages = []
@@ -656,6 +659,7 @@ def qbuddy_scan(role):
                             all_messages.extend(messages)
                     # 发送加载完成消息
                     yield f"data: {json.dumps({'type': 'dialogue', 'text': f'找到 {len(all_messages)} 条群消息'})}\n\n"
+                    time.sleep(0.08)  # 短暂延迟
             except Exception as e:
                 print(f"[QBuddy] 加载群消息失败: {e}", flush=True)
                 yield f"data: {json.dumps({'type': 'dialogue', 'text': '加载消息数据失败'})}\n\n"
@@ -668,11 +672,13 @@ def qbuddy_scan(role):
             
             phase1_time = time_module.time() - phase1_start
             yield f"data: {json.dumps({'type': 'progress', 'step': 'graph', 'message': f'✅ 第一段完成：图谱构建耗时 {phase1_time:.1f}秒', 'graph_data': graph_data, 'phase1_time': phase1_time})}\n\n"
+            time.sleep(0.1)  # 短暂延迟
             
             # ========== 第二段：整合输出部分 ==========
             phase2_start = time_module.time()
             
             yield f"data: {json.dumps({'type': 'progress', 'step': 'integration', 'message': '正在整合输出...'})}\n\n"
+            time.sleep(0.08)  # 短暂延迟
             
             # 运行场景检测器
             detector_manager = ScenarioDetectorManager(graph_engine)
@@ -691,6 +697,7 @@ def qbuddy_scan(role):
             
             for det_key, progress_msg, card_type in detectors_config:
                 yield f"data: {json.dumps({'type': 'progress', 'step': det_key, 'message': progress_msg})}\n\n"
+                time.sleep(0.08)  # 短暂延迟
                 if det_key == 'group_extract':
                     results = detector_manager.extractor.detect()
                     for r in results:
@@ -699,6 +706,7 @@ def qbuddy_scan(role):
                             all_cards.append(card)
                             dialogue = _generate_group_dialogue(r)
                             yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                            time.sleep(0.1)  # 短暂延迟，让前端有时间处理
                             yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': _get_highlight_for_result(graph_engine, card)})}\n\n"
                         except Exception as e:
                             print(f"[{det_key}] 处理卡片失败: {e}", flush=True)
@@ -713,6 +721,7 @@ def qbuddy_scan(role):
                             # 推送对话消息
                             dialogue = r.get('dialogue', '')
                             yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                            time.sleep(0.1)  # 短暂延迟
                             yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': _get_highlight_for_result(graph_engine, card)})}\n\n"
                         except Exception as e:
                             print(f"[{det_key}] 处理卡片失败: {e}")
@@ -726,6 +735,7 @@ def qbuddy_scan(role):
                             all_cards.append(card)
                             dialogue = _generate_cooling_dialogue(r)
                             yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                            time.sleep(0.1)  # 短暂延迟
                             yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': _get_highlight_for_result(graph_engine, card)})}\n\n"
                         except Exception as e:
                             print(f"[{det_key}] 处理卡片失败: {e}")
@@ -739,6 +749,7 @@ def qbuddy_scan(role):
                             all_cards.append(card)
                             dialogue = _generate_reactivate_dialogue(r)
                             yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                            time.sleep(0.1)  # 短暂延迟
                             yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': _get_highlight_for_result(graph_engine, card)})}\n\n"
                         except Exception as e:
                             print(f"[{det_key}] 处理卡片失败: {e}")
@@ -774,6 +785,7 @@ def qbuddy_scan(role):
                             all_cards.append(card)
                             dialogue = _generate_birthday_dialogue(r)
                             yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                            time.sleep(0.1)  # 短暂延迟
                             yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': _get_highlight_for_result(graph_engine, card)})}\n\n"
                         except Exception as e:
                             print(f"[{det_key}] 处理卡片失败: {e}")
@@ -781,6 +793,7 @@ def qbuddy_scan(role):
             
             # Step 2.5: 好友动态检测 (buddy_activity)
             yield f"data: {json.dumps({'type': 'progress', 'step': 'buddy_activity', 'message': '正在查看好友动态...'})}\n\n"
+            time.sleep(0.08)  # 短暂延迟
             try:
                 dynamics_path = f"{DATA_PATH}/{role}/dynamics.json"
                 with open(dynamics_path, "r", encoding="utf-8") as f:
@@ -809,6 +822,7 @@ def qbuddy_scan(role):
                             dialogue = f"你的好友{author}发布了新动态"
                         dialogues.append(dialogue)
                         yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                        time.sleep(0.08)  # 短暂延迟
                         yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': {}})}\n\n"
                         buddy_activity_count += 1
                         if buddy_activity_count >= 3:
@@ -818,6 +832,7 @@ def qbuddy_scan(role):
             
             # Step 2.6: QQ生态同好检测 (ecosystem)
             yield f"data: {json.dumps({'type': 'progress', 'step': 'ecosystem', 'message': '正在分析QQ生态同好...'})}\n\n"
+            time.sleep(0.1)  # 短暂延迟
             try:
                 ecosystem_path = f"{DATA_PATH}/{role}/ecosystem.json"
                 with open(ecosystem_path, "r", encoding="utf-8") as f:
@@ -836,12 +851,14 @@ def qbuddy_scan(role):
                 
                 dialogue = "发现你和朋友们在QQ音乐、QQ阅读等有共同爱好哦~"
                 yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                time.sleep(0.08)  # 短暂延迟
                 yield f"data: {json.dumps({'type': 'card', 'data': card, 'graph_highlight': {}})}\n\n"
             except Exception as e:
                 print(f"加载生态数据失败: {e}")
             
             # Step 2.7: 频道推荐检测 (channel)
             yield f"data: {json.dumps({'type': 'progress', 'step': 'channel', 'message': '正在推荐兴趣频道...'})}\n\n"
+            time.sleep(0.1)  # 短暂延迟
             user_interests = profile.get('persona', {}).get('interests', [])
             if user_interests:
                 channel_cards = _generate_channel_recommendations(user_interests, role)
@@ -849,6 +866,7 @@ def qbuddy_scan(role):
                     all_cards.append(channel_card)
                     dialogue = f"根据你的「{channel_card.get('detail', {}).get('matchInterest', '兴趣')}」爱好，推荐你加入 {channel_card.get('title', '')}"
                     yield f"data: {json.dumps({'type': 'dialogue', 'text': dialogue})}\n\n"
+                    time.sleep(0.08)  # 短暂延迟
                     yield f"data: {json.dumps({'type': 'card', 'data': channel_card, 'graph_highlight': {}})}\n\n"
             # ========== 完成总结 ==========
             phase2_time = time_module.time() - phase2_start
@@ -860,6 +878,7 @@ def qbuddy_scan(role):
                 summary = "看起来一切都很顺利呢！没有需要特别提醒的事项~"
             
             yield f"data: {json.dumps({'type': 'dialogue', 'text': summary})}\n\n"
+            time.sleep(0.15)  # 短暂延迟，让用户看到总结消息
             
             done_data = {
                 'type': 'done', 
