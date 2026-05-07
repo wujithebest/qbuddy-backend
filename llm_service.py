@@ -18,8 +18,7 @@ class LLMService:
             api_key=api_key,
             base_url="https://api.deepseek.com"
         )
-        # DeepSeek 正确的模型名称
-        self.model = os.environ.get('DEEPSEEK_MODEL', 'deepseek-chat')
+        self.model = "deepseek-v4-pro"
     
     def _call_llm(self, messages, temperature=0.3, max_tokens=4000):
         """
