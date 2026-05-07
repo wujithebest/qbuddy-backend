@@ -1458,6 +1458,261 @@ def _format_channel_card(channel_info, match_interest, frontend_channel_id=None)
     }
 
 
+# ============ QBuddy 新版 API（整合所有8个步骤） ============
+
+# 导入新的服务模块
+try:
+    from qb_service import QBuddyService, get_or_create_service, stop_all_services
+    QB_SERVICE_AVAILABLE = True
+except ImportError as e:
+    print(f"[Warning] qb_service 模块导入失败: {e}")
+    QB_SERVICE_AVAILABLE = False
+
+
+@app.route('/api/qbuddy/init', methods=['POST'])
+@require_password
+def qbuddy_init():
+    """
+    步骤整合：初始化 QBuddy 服务
+    执行步骤1-3：构建图谱、提取skill、分析动态
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    data = request.get_json() or {}
+    role = data.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        result = service.initialize()
+        
+        return success_response({
+            "role": role,
+            "graph_data": result["step1_graph"]["graph_data"],
+            "skill_md": result["step2_skill"],
+            "relevant_content": result["step3_dynamics"],
+            "message": "QBuddy 初始化完成"
+        })
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return error_response(f"初始化失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/skill', methods=['GET'])
+@require_password
+def get_user_skill():
+    """
+    获取用户的 skill.md
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    role = request.args.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        
+        if not service.user_skill_md:
+            service.initialize()
+        
+        return success_response({
+            "skill_md": service.user_skill_md or "# 默认风格\n普通聊天风格"
+        })
+    
+    except Exception as e:
+        return error_response(f"获取skill失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/background/start', methods=['POST'])
+@require_password
+def start_background_services():
+    """
+    启动后台服务（步骤4：消息监听、步骤5：温度监控）
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    data = request.get_json() or {}
+    role = data.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        
+        # 定义回调函数
+        def on_alert(alert):
+            print(f"[Alert] 触发告警: {alert.get('rule_name')}")
+        
+        service.start_background_services(on_alert=on_alert)
+        
+        return success_response({
+            "message": "后台服务已启动",
+            "services": {
+                "message_listener": service.message_listener is not None,
+                "temperature_monitor": service.temp_monitor is not None
+            }
+        })
+    
+    except Exception as e:
+        return error_response(f"启动后台服务失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/background/stop', methods=['POST'])
+@require_password
+def stop_background_services():
+    """停止后台服务"""
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    try:
+        stop_all_services()
+        return success_response({"message": "后台服务已停止"})
+    except Exception as e:
+        return error_response(f"停止后台服务失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/alerts', methods=['GET'])
+@require_password
+def get_pending_alerts():
+    """
+    获取待处理的告警（用于前端闪亮提醒）
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    role = request.args.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        
+        alerts = []
+        if service.temp_monitor:
+            alerts = service.temp_monitor.get_pending_alerts()
+        
+        return success_response({
+            "alerts": alerts,
+            "has_new_alerts": len(alerts) > 0
+        })
+    
+    except Exception as e:
+        return error_response(f"获取告警失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/push-cards', methods=['GET'])
+@require_password
+def get_push_cards():
+    """
+    获取聚合推送卡片（步骤6）
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    role = request.args.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        cards = service.generate_push_cards()
+        
+        return success_response({
+            "cards": cards,
+            "total": len(cards)
+        })
+    
+    except Exception as e:
+        return error_response(f"生成推送卡片失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/chat-v2', methods=['POST'])
+@require_password
+def qbuddy_chat_v2():
+    """
+    QBuddy 对话 API（步骤7：Tool Calling）
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    data = request.get_json() or {}
+    message = data.get('message', '')
+    role = data.get('role', 'chen')
+    
+    if not message:
+        return error_response("消息不能为空", 400)
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        result = service.chat(message)
+        
+        return success_response(result)
+    
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return error_response(f"对话失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/feedback', methods=['POST'])
+@require_password
+def record_feedback():
+    """
+    记录用户反馈（步骤8：动态阈值调整）
+    """
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    data = request.get_json() or {}
+    role = data.get('role', 'chen')
+    card_type = data.get('card_type', '')
+    action = data.get('action', '')
+    interacted = data.get('interacted', False)
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        service.record_interaction(card_type, action, interacted)
+        
+        return success_response({
+            "message": "反馈已记录",
+            "thresholds": service.get_threshold_config()
+        })
+    
+    except Exception as e:
+        return error_response(f"记录反馈失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/thresholds', methods=['GET'])
+@require_password
+def get_thresholds():
+    """获取当前阈值配置"""
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    role = request.args.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        return success_response(service.get_threshold_config())
+    except Exception as e:
+        return error_response(f"获取阈值失败: {str(e)}", 500)
+
+
+@app.route('/api/qbuddy/thresholds/reset', methods=['POST'])
+@require_password
+def reset_thresholds():
+    """重置阈值到默认值"""
+    if not QB_SERVICE_AVAILABLE:
+        return error_response("QB服务模块不可用", 500)
+    
+    data = request.get_json() or {}
+    role = data.get('role', 'chen')
+    
+    try:
+        service = get_or_create_service(role, DATA_PATH)
+        service.threshold_optimizer.reset_thresholds()
+        return success_response({"message": "阈值已重置"})
+    except Exception as e:
+        return error_response(f"重置阈值失败: {str(e)}", 500)
+
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 8080))
